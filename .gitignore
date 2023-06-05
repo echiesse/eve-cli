@@ -1,2 +1,5 @@
 *.pyc
 __pycache__
+*.yaml
+*.staticdata
+/src/resources/sde/extract
