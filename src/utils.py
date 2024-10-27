@@ -1,13 +1,7 @@
 import os
+import sys
 import json
 from collections import deque
-
-def loadJson(sourceFile):
-    with open(sourceFile) as source:
-        result = json.load(source)
-
-    return result
-
 
 def getRegionById(regions, id):
     res = None
@@ -51,3 +45,7 @@ def pprint(val, ret = None, level = 0):
         ret[-1].append(']')
     else:
         ret.extend(level * INDENT, str(val))
+
+
+def perror(*msg):
+    print(*msg, file=sys.stderr)

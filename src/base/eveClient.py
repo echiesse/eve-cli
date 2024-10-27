@@ -4,7 +4,8 @@ import requests
 #https://esi.evetech.net/v1/markets/10000001/orders/?datasource=tranquility&order_type=sell&page=1
 #https://esi.evetech.net/v3/universe/types/2048?datasource=tranquility&type_id=2048
 
-ESI_BASE_URL = 'https://esi.evetech.net'
+ESI_HOST_URL = 'https://esi.evetech.net'
+ESI_VERSION_PATH = 'latest'
 
 class ServerNames:
     TRANQUILITY = 'tranquility'
@@ -78,7 +79,7 @@ class DataSource:
     def get(self, path, retries = 0, **params):
         params['datasource'] = self.serverName
         filterStr = '&'.join([f'{k}={v}' for k, v in params.items()])
-        url = f'{ESI_BASE_URL}/{path}?{filterStr}'
+        url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}?{filterStr}'
 
         def performRequest(url):
             response = requests.get(url)
@@ -92,7 +93,7 @@ class DataSource:
         return ESIResponse(json.loads(jsonResponse), pageCount)
 
     def post(self, path, data):
-        url = f'{ESI_BASE_URL}/{path}'
+        url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}'
 
         response = requests.post(url, data = data)
         response.raise_for_status()
@@ -103,19 +104,19 @@ class DataSource:
         return ESIResponse(json.loads(jsonResponse), pageCount)
 
     def getSystem(self, systemId):
-        response = self.get(f'latest/universe/systems/{systemId}')
+        response = self.get(f'universe/systems/{systemId}')
         return response.data
 
     def getSystems(self):
-        response = self.get(f'latest/universe/systems/')
+        response = self.get(f'universe/systems/')
         return response.data
 
     def getConstelation(self, constellationId):
-        response = self.get(f'latest/universe/constellations/{constellationId}')
+        response = self.get(f'universe/constellations/{constellationId}')
         return response.data
 
     def getItem(self, itemId):
-        response = self.get(f'latest/universe/types/{itemId}')
+        response = self.get(f'universe/types/{itemId}')
         return response.data
 
     def getItemName(self, itemId):
@@ -126,11 +127,11 @@ class DataSource:
     def getNames(self, ids):
         assert isinstance(ids, list)
         data = str(ids)
-        response = self.post(f'latest/universe/names', data = data)
+        response = self.post(f'universe/names', data = data)
         return response.data
 
     def search(self, term, *, categories, strict=False, page = 1):
-        path = 'latest/search'
+        path = 'search'
         categories_param = ",".join(categories)
         return self.get(path, search = term, categories = categories_param, strict = strict, page = page)
 
@@ -140,7 +141,7 @@ class DataSource:
 
 
     def getMarketOrders(self, regionId, solarSystemId = None, itemId = None, orderType = 'all', retries = 0):
-        path = f'latest/markets/{regionId}/orders'
+        path = f'markets/{regionId}/orders'
 
         params = {
             'order_type': orderType,
@@ -163,5 +164,27 @@ class DataSource:
 
 
     def getPriceEstimates(self):
-        path = f'latest/markets/prices/'
+        path = 'markets/prices/'
+        return self.get(path)
+
+
+    def getIndustryCostIndices(self):
+        path = 'industry/systems/'
+        return self.get(path)
+
+
+    def getIndustryCostIndicesDict(self):
+        systems = self.getIndustryCostIndices().data
+        result = {}
+        for system in systems:
+            systemData = {}
+            for index in system['cost_indices']:
+                systemData[index['activity']] = index['cost_index']
+            result[system['solar_system_id']] = systemData
+
+        return result
+
+
+    def getIndustryFacilities(self):
+        path = '/industry/facilities/'
         return self.get(path)

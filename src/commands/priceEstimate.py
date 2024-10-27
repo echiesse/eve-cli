@@ -6,6 +6,7 @@ import multiprocessing as mp
 from application.factories import sdeManagerFromConfig
 from base import eveClient, market
 from base.blueprints import *
+from base.support import loadJson
 from extra.queries import *
 from utils import *
 
@@ -113,11 +114,11 @@ def run(*args):
 
     optionalParams = {}
 
-    # Obter região:
+    # Get region (Ex: The Forge, Domain, etc):
     region = findRegion(regionId = regionId, regionName = regionName)
 
-    # TODO: Atenção! Como estou querendo ficar na mesma estação as ordens no sistema não são a melhor opção. <<<<<
-    # Obter sistema solar:
+    # TODO: Warning! I want to stay in the same station, so the region orders may not be the best option. <<<<<
+    # Get Solar System:
     solarSystems = loadJson(os.path.join('resources', 'systems.json'))
     solarSystem = solarSystems.get(solarSystemName)
     if solarSystem is not None:
@@ -126,7 +127,11 @@ def run(*args):
     if shallPrintHeader:
         printHeader(region["name"], region["id"], orderCountToConsider)
 
-    # Obter preços dos materiais:
+    # Obtain "System Cost Index"
+    systemCostIndices = tranquility.getIndustryCostIndicesDict()
+    systemCostIndex = systemCostIndices.get(solarSystem['id'], {}).get('manufacturing')
+
+    # Obtain prices of the materials:
     items = loadJson(itemsListFile)
     items.sort(key = lambda m: m['name'])
     priceTable = getPricesFromESI(items, region['id'], orderCountToConsider, orderType, retries, **optionalParams)
@@ -138,10 +143,16 @@ def run(*args):
             tableItem.averagePrice = inGameEstimates['average_price']
             tableItem.adjustedPrice = inGameEstimates['adjusted_price']
 
-    # Calcular custo dos itens de indústria:
+    # Taxes (They are fixed for NPC stations):
+    facilityBonuses = 1
+    facilityTax = 0.0025
+    sccSurcharge = 0.015
+
+
+    # Calculate cost of industry items:
     for item in items:
         itemId = item['id']
-        # Obter a blueprint do item
+        # Obtain item's blueprint:
         try:
             blueprint = sde.getItemBlueprint(itemId)
         except Exception:
@@ -150,15 +161,15 @@ def run(*args):
         if blueprint is None:
             continue
 
-        bpo = BPO.fromJson(blueprint, 0, 0)
+        bpo = BPO.fromJson(blueprint, 0, 0) # TODO: Consider BPOs with better ME and TE
         currentProduct = priceTable.getItem(itemId)
         components = bpo.calcMaterialQuantity(1)
 
-        # Calcular custo dos componentes:
+        # Calculate components cost:
         componentPrices = {}
         eiv = 0
         succeded = True
-        for id, quantity  in components.items():
+        for id, quantity in components.items():
             id = int(id)
             component = priceTable.getItem(id)
             if component is None:
@@ -166,12 +177,21 @@ def run(*args):
                 succeded = False
                 break
             else:
+                if component.sellPrice is None:
+                    perror(f'"Sell Price" não encontrado para componente de id "{id}" ({component.name})')
+                    succeded = False
+                    break
                 componentPrices[id] = component.sellPrice * quantity
+                if component.adjustedPrice is None:
+                    perror(f'"Adjusted Price" não encontrado para componente de id "{id}" ({component.name})')
+                    succeded = False
+                    break
                 eiv += component.adjustedPrice * quantity
 
         if succeded:
-            currentProduct.materialCost = sum(componentPrices.values())
+            currentProduct.materialCost = sum(componentPrices.values()) / bpo.runOutputCount
             currentProduct.estimatedItemValue = eiv
+            currentProduct.installationCost = eiv * (systemCostIndex * facilityBonuses + facilityTax + sccSurcharge) / bpo.runOutputCount
 
-    # Exibir tabela
+    # Show table:
     print(priceTable)

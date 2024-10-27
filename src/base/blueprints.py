@@ -14,6 +14,10 @@ class Blueprint:
         return bp
 
     @property
+    def name(self):
+        return self.data['name']
+
+    @property
     def components(self):
         return self._components
 

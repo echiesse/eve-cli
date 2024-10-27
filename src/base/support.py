@@ -1,6 +1,6 @@
 from contextlib import suppress
 import json
-import os
+import sys
 
 
 def loadJson(filePath):
