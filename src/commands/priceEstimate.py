@@ -130,6 +130,7 @@ def run(*args):
     # Obtain "System Cost Index"
     systemCostIndices = tranquility.getIndustryCostIndicesDict()
     systemCostIndex = systemCostIndices.get(solarSystem['id'], {}).get('manufacturing')
+    print(f'System Cost Index: {systemCostIndex}', file=sys.stderr)
 
     # Obtain prices of the materials:
     items = loadJson(itemsListFile)
@@ -146,7 +147,7 @@ def run(*args):
     # Taxes (They are fixed for NPC stations):
     facilityBonuses = 1
     facilityTax = 0.0025
-    sccSurcharge = 0.015
+    sccSurcharge = 0.04
 
 
     # Calculate cost of industry items:

@@ -1,5 +1,5 @@
-lxml==4.6.4
+lxml==6.0.0
 najha==0.3
 pytest==6.2.5
-PyYAML==6.0
+PyYAML==6.0.2
 requests==2.26.0

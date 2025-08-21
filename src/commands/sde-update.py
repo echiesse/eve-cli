@@ -19,7 +19,7 @@ def run():
     print('Obtendo endereço para download ...')
     url = getSDEDownloadLink(sde)
 
-    print('Baixando novo arquivo SDE ...')
+    print(f'Baixando novo arquivo SDE de "{url}" ...')
     sde.fetchSDEArchive(url)
     print('Arquivo SDE baixado com sucesso.')
 
