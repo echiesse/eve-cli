@@ -162,7 +162,7 @@ def run(*args):
         if blueprint is None:
             continue
 
-        bpo = BPO.fromJson(blueprint, 0, 0) # TODO: Consider BPOs with better ME and TE
+        bpo = BPO(blueprint, 0, 0) # TODO: Consider BPOs with better ME and TE
         currentProduct = priceTable.getItem(itemId)
         components = bpo.calcMaterialQuantity(1)
 

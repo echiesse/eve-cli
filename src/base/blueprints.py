@@ -50,7 +50,7 @@ class BPO(Blueprint):
 
     @classmethod
     def fromJson(cls, data, materialEfficiency, timeEfficiency):
-        return cls(data, materialEfficiency, timeEfficiency)
+        return cls.fromJson(data, materialEfficiency, timeEfficiency)
 
     @classmethod
     def fromBlueprint(cls, bp, materialEfficiency, timeEfficiency):

@@ -16,7 +16,7 @@ def run(itemId, regionId, solarSystemId, retries = 3):
     sde = sdeManagerFromConfig()
     # Obter a blueprint do item
     blueprint = sde.getItemBlueprint(itemId)
-    bpo = BPO.fromJson(blueprint, 0, 0)
+    bpo = BPO(blueprint, 0, 0)
 
     # Calcular as quantidades necessárias de cada material com base na TE e ME da BP
     components = bpo.calcMaterialQuantity(1)
