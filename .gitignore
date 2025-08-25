@@ -3,3 +3,4 @@ __pycache__
 *.yaml
 *.staticdata
 /src/resources/sde/extract
+/src/resources
