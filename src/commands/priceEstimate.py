@@ -141,8 +141,12 @@ def run(*args):
     for tableItem in priceTable.items:
         inGameEstimates = inGameEstimatePrices.get(tableItem.id)
         if inGameEstimates is not None:
-            tableItem.averagePrice = inGameEstimates['average_price']
-            tableItem.adjustedPrice = inGameEstimates['adjusted_price']
+            try:
+                tableItem.averagePrice = inGameEstimates['average_price']
+                tableItem.adjustedPrice = inGameEstimates['adjusted_price']
+            except Exception as e:
+                perror(f'Error processing item: {tableItem.name}')
+                perror(f'{type(e).__name__}: {e}')
 
     # Taxes (They are fixed for NPC stations):
     facilityBonuses = 1
