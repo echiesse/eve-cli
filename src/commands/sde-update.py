@@ -2,22 +2,11 @@ from application.factories import sdeManagerFromConfig
 from base.sde import SDEFetchLinkNotFoundException
 
 
-def getSDEDownloadLink(sdeManager):
-    url = None
-    try:
-        url = sdeManager.resolveSDELink()
-    except SDEFetchLinkNotFoundException as e:
-        print('Não foi possível obter o link do SDE a partir da homepage')
-        exit(1)
-
-    return url
-
-
 def run():
     sde = sdeManagerFromConfig()
 
     print('Obtendo endereço para download ...')
-    url = getSDEDownloadLink(sde)
+    url = sde.sdeUrl
 
     print(f'Baixando novo arquivo SDE de "{url}" ...')
     sde.fetchSDEArchive(url)

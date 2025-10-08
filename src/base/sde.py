@@ -23,15 +23,14 @@ class SDEFetchLinkNotFoundException(SDEException):
 
 
 class SDEManager:
-    BLUEPRINT_FILE_PATH = os.path.normpath('fsd/blueprints.yaml')
+    BLUEPRINT_FILE_PATH = os.path.normpath('blueprints.yaml')
+    TYPE_ID_FILE_PATH = os.path.normpath('types.yaml')
     TYPEID_INDEX_FILE_PATH = os.path.normpath('resources/typeIDs.idx')
     BLUEPRINT_TYPEID_INDEX_FILE_PATH = os.path.normpath('resources/blueprintTypeIDs.idx')
-    TYPE_ID_FILE_PATH = os.path.normpath('fsd/types.yaml')
 
 
-    def __init__(self, sdePageUrl, sdeLinkText, dataDir, archiveName):
-        self.sdePageUrl = sdePageUrl
-        self.sdeLinkText = sdeLinkText
+    def __init__(self, sdeUrl, dataDir, archiveName):
+        self.sdeUrl = sdeUrl
         self.dataDir = os.path.abspath(os.path.normpath(dataDir))
         self.archiveName = archiveName
         self.typeIdIndex = None
