@@ -130,8 +130,8 @@ class SDEManager:
 
     def createIndexFile(self, filepath, data):
         with open(filepath, 'w', encoding='utf-8') as indexFile:
-            for name, id in data.items():
-                indexFile.write(f'{name}\t{id}\n')
+            for itemId, bpId in data.items():
+                indexFile.write(f'{itemId}\t{bpId}\n')
 
 
     def buildBlueprintTypeIdMap(self):
