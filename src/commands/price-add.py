@@ -8,12 +8,17 @@ tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 
 RESOURCE_NAME = 'tracked_items'
 
-def run(itemId):
+def run(*itemIds):
+    for id in itemIds:
+        add_price(id)
+
+
+def add_price(itemId):
     try:
         trackedItems = loadJsonResource(RESOURCE_NAME)
     except ResourceNotFoundException as e:
         print(e)
-        sys.exit(1)
+        return
 
     if resourceHasItem(trackedItems, itemId):
         return
