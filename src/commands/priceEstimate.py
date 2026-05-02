@@ -174,13 +174,13 @@ def run(*args):
         componentPrices = {}
         eiv = 0
         succeded = True
+        notFoundItems = []
         for id, quantity in components.items():
             id = int(id)
             component = priceTable.getItem(id)
             if component is None:
-                print(f'Preço não encontrado para componente de id "{id}"', file=sys.stderr) #<<<<<
-                succeded = False
-                break
+                notFoundItems.append(id)
+                continue
             else:
                 if component.sellPrice is None:
                     perror(f'"Sell Price" não encontrado para componente de id "{id}" ({component.name})')
@@ -193,7 +193,12 @@ def run(*args):
                     break
                 eiv += component.adjustedPrice * quantity
 
-        if succeded:
+        succeded = succeded and (len(notFoundItems) == 0)
+
+        if not succeded:
+            notFoundIds = ' '.join([str(id) for id in notFoundItems])
+            perror(f'Preço não encontrado para os componentes de id:\n{notFoundIds}') #<<<<<
+        else:
             currentProduct.materialCost = sum(componentPrices.values()) / bpo.runOutputCount
             currentProduct.estimatedItemValue = eiv
             currentProduct.installationCost = eiv * (systemCostIndex * facilityBonuses + facilityTax + sccSurcharge) / bpo.runOutputCount
