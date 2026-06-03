@@ -2,6 +2,7 @@ import os
 import sys
 import json
 from collections import deque
+from datetime import datetime
 
 def getRegionById(regions, id):
     res = None
@@ -26,6 +27,10 @@ def splitPath(path, acc = None):
 def ensureDir(path):
     if not os.path.exists(path):
         os.makedirs(path, exist_ok = True)
+
+
+def showDateTime():
+    return datetime.strftime(datetime.now(), '%Y%m%d_%H%M%S')
 
 
 #def fromUnixPath(path):

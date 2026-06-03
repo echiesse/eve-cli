@@ -8,6 +8,7 @@ from base import eveClient, market
 from base.blueprints import *
 from base.support import loadJson
 from extra.queries import *
+from support.filesystem import pushd
 from utils import *
 
 ORDER_TYPES = ['sell', 'buy', 'all']
@@ -205,3 +206,14 @@ def run(*args):
 
     # Show table:
     print(priceTable)
+
+    # Save the price table:
+    pricesDir = 'price_history'
+    tableFilename = f'prices_{region['id']}_{solarSystemName}_{showDateTime()}.json'
+    path = os.path.join(pricesDir, tableFilename)
+
+    if not os.path.exists(pricesDir):
+        os.makedirs(pricesDir)
+
+    with open(path, 'w') as pricesFile:
+        json.dump(priceTable.asdict, pricesFile)
