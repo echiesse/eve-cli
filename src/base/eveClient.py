@@ -1,11 +1,14 @@
 import json
 import requests
 
+import base.authentication as auth
+
 #https://esi.evetech.net/v1/markets/10000001/orders/?datasource=tranquility&order_type=sell&page=1
 #https://esi.evetech.net/v3/universe/types/2048?datasource=tranquility&type_id=2048
 
 ESI_HOST_URL = 'https://esi.evetech.net'
 ESI_VERSION_PATH = 'latest'
+ESI_CLIENT_ID = 'f64026eee2b64492bf9dd8b4bb0d2c1f'
 
 class ServerNames:
     TRANQUILITY = 'tranquility'
@@ -46,7 +49,7 @@ def paginatedRequest(requestFn, responseHandler):
 class ESIResponse:
     def __init__(self, data, pageCount):
         self.data = data
-        self.pageCount = pageCount
+        self.pageCount = pageCount # FIXME: Pagination changed
 
 
 def retry(count, fn, *, exceptions = Exception):
@@ -75,14 +78,42 @@ def retry(count, fn, *, exceptions = Exception):
 class DataSource:
     def __init__(self, serverName):
         self.serverName = serverName
+        self.clientId = ESI_CLIENT_ID
+        self.tokens = None
+
+
+    def authenticate(self):
+        self.tokens = auth.authenticate(self.clientId)
+
+    def isAuthenticated(self):
+        return self.tokens != None
+
+    '''
+    def authenticate(self):
+        # Subir o servidor para receber o callback
+        # Enviar clientId e clientSecret para o endpoint de autorização
+        # Receber o authorization code via callback
+        # Derrubar o servidor
+        # User o authorization code para obter tokens
+    '''
+
+    def refresh_access_token(self):
+        self.tokens = auth.refresh_access_token(self.tokens.refresh_token)
+
 
     def get(self, path, retries = 0, **params):
         params['datasource'] = self.serverName
         filterStr = '&'.join([f'{k}={v}' for k, v in params.items()])
         url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}?{filterStr}'
 
+        headers = {}
+        if self.isAuthenticated():
+            headers.update({
+                'Authorization': f'Bearer {self.tokens.access_token}',
+            })
+
         def performRequest(url):
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
             return response
         response = retry(retries, performRequest, exceptions=requests.exceptions.HTTPError)(url)
@@ -183,6 +214,10 @@ class DataSource:
             result[system['solar_system_id']] = systemData
 
         return result
+
+
+    def getUserInventory(self, userId):
+        pass
 
 
     def getIndustryFacilities(self):
