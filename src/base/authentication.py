@@ -60,6 +60,29 @@ class TokenResponse:
     expires_in: int
     token_type: str
 
+    @property
+    def as_json(self):
+        return json.dumps({
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token,
+            'expires_in': self.expires_in,
+            'token_type': self.token_type,
+        })
+
+    @classmethod
+    def from_dict(cls, token_dict):
+        return cls(
+            access_token = token_dict['access_token'],
+            refresh_token = token_dict['refresh_token'],
+            expires_in = token_dict['expires_in'],
+            token_type = token_dict['token_type'],
+        )
+
+    @classmethod
+    def from_json(cls, token_json):
+        token_dict = json.loads(token_json)
+        return cls.from_dict(token_dict)
+
 
 # ---------------------------------------------------------------------------
 # PKCE helpers
@@ -292,8 +315,7 @@ def authenticate(client_id) -> Optional[TokenResponse]:
 
     # Start the callback server in a background thread
     server = _CallbackServer(
-        #("127.0.0.1", port),
-        ("127.0.0.1", CALLBACK_PORT),
+        ("127.0.0.1", port),
         _OAuthCallbackHandler,
         expected_state=state,
     )

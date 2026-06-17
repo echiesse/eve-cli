@@ -1,7 +1,10 @@
 import json
+import os
+
 import requests
 
 import base.authentication as auth
+from utils import *
 
 #https://esi.evetech.net/v1/markets/10000001/orders/?datasource=tranquility&order_type=sell&page=1
 #https://esi.evetech.net/v3/universe/types/2048?datasource=tranquility&type_id=2048
@@ -79,10 +82,27 @@ class DataSource:
         self.serverName = serverName
         self.clientId = auth.CLIENT_ID
         self.tokens = None
+        self.configDir = os.path.normpath(os.path.expanduser('~/.evecli'))
+        self.tokenPath = os.path.join(self.configDir, 'tokens.json')
+        ensureDir(self.configDir)
 
+
+    def saveTokens(self, tokens: dict):
+        with open(self.tokenPath, 'w') as tokenFile:
+            tokenFile.write(tokens.as_json)
+
+    def loadTokens(self):
+        with open(self.tokenPath) as tokenFile:
+            tokenContents = tokenFile.read()
+            self.tokens = auth.TokenResponse.from_json(tokenContents)
+            return self.tokens
 
     def authenticate(self):
-        self.tokens = auth.authenticate(self.clientId)
+        try:
+            self.loadTokens()
+        except Exception:
+            self.tokens = auth.authenticate(self.clientId)
+            self.saveTokens(self.tokens)
 
     def isAuthenticated(self):
         return self.tokens != None
@@ -105,6 +125,7 @@ class DataSource:
         filterStr = '&'.join([f'{k}={v}' for k, v in params.items()])
         url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}?{filterStr}'
 
+        self.loadTokens()
         headers = {}
         if self.isAuthenticated():
             headers.update({
@@ -113,6 +134,8 @@ class DataSource:
 
         def performRequest(url):
             response = requests.get(url, headers=headers)
+            if response.status_code == requests.codes.unauthorized:
+                self.tokens = auth.refresh_access_token(self.tokens['refresh_token'])
             response.raise_for_status()
             return response
         response = retry(retries, performRequest, exceptions=requests.exceptions.HTTPError)(url)
