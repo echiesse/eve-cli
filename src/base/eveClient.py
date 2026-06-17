@@ -215,8 +215,9 @@ class DataSource:
         return result
 
 
-    def getUserInventory(self, userId):
-        pass
+    def getCharacterInventory(self, characterId):
+        response = self.get(f'characters/{characterId}/assets')
+        return response.data
 
 
     def getIndustryFacilities(self):

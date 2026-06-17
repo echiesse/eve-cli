@@ -9,8 +9,6 @@ CHARACTER_ID = '2117307808'
 #URL = 'https://esi.evetech.net/characters/{character_id}/assets'
 
 def run(characterId):
-    #import pdb; pdb.set_trace() #<<<<<
-
     tranquility.authenticate()
-    response = tranquility.get(f'characters/{CHARACTER_ID}/assets')
-    print(response.data)
+    data = tranquility.getCharacterInventory(CHARACTER_ID)
+    print(data)
