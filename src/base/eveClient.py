@@ -8,7 +8,6 @@ import base.authentication as auth
 
 ESI_HOST_URL = 'https://esi.evetech.net'
 ESI_VERSION_PATH = 'latest'
-ESI_CLIENT_ID = 'f64026eee2b64492bf9dd8b4bb0d2c1f'
 
 class ServerNames:
     TRANQUILITY = 'tranquility'
@@ -78,7 +77,7 @@ def retry(count, fn, *, exceptions = Exception):
 class DataSource:
     def __init__(self, serverName):
         self.serverName = serverName
-        self.clientId = ESI_CLIENT_ID
+        self.clientId = auth.CLIENT_ID
         self.tokens = None
 
 

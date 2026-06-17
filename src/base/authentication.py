@@ -32,7 +32,7 @@ from typing import Optional
 # ---------------------------------------------------------------------------
 # Configuration — fill in your EVE developer app values
 # ---------------------------------------------------------------------------
-CLIENT_ID = "f64026eee2b64492bf9dd8b4bb0d2c1f"
+CLIENT_ID = "94cf39a145d8422eb72f9b7060f55c1a" # TODO: Client ID should be defined in caller's code
 
 
 # Scopes you want to request (space-separated)
@@ -43,7 +43,7 @@ EVE_AUTH_URL = "https://login.eveonline.com/v2/oauth/authorize"
 EVE_TOKEN_URL = "https://login.eveonline.com/v2/oauth/token"
 
 #CALLBACK_URL = "http://localhost:12534/callback"
-CALLBACK_PORT = 12534
+CALLBACK_PORT = 12345
 
 # How long to wait for the user to complete login (seconds)
 #LOGIN_TIMEOUT = 300
@@ -267,13 +267,11 @@ def authenticate(client_id) -> Optional[TokenResponse]:
     """
     code_verifier, code_challenge = generate_pkce_pair()
     state = secrets.token_urlsafe(16)  # CSRF protection
-    #port = _find_free_port()
     port = CALLBACK_PORT
 
-    redirect_uri = f"http://127.0.0.1:{port}/callback"
-    #redirect_uri = f"http://localhost:{port}/callback"
+    redirect_uri = f"http://localhost:{port}/callback"
 
-    print(f"Redirect URI: {redirect_uri}") # <<<<<
+    #print(f"Redirect URI: {redirect_uri}") # <<<<<
 
     # Build the authorization URL
     auth_params = urllib.parse.urlencode(
