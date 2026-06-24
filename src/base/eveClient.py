@@ -78,6 +78,9 @@ def retry(count, fn, *, exceptions = Exception):
 
 
 class DataSource:
+
+    TOKEN_EXPIRY_MARGIN = 15
+
     def __init__(self, serverName):
         self.serverName = serverName
         self.clientId = auth.CLIENT_ID
@@ -124,6 +127,16 @@ class DataSource:
         self.saveTokens(self.tokens)
 
 
+    @property
+    def accessTokenExpired(self):
+        expiryTimestamp = (
+            self.tokens.timestamp +
+            self.tokens.expires_in -
+            self.TOKEN_EXPIRY_MARGIN
+        )
+        return auth.gen_timestamp() > expiryTimestamp
+
+
     def get(self, path, retries = 0, **params):
         shallUseAuth = params.get('useAuth') or False
         params['datasource'] = self.serverName
@@ -131,20 +144,22 @@ class DataSource:
         url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}?{filterStr}'
 
         headers = {}
-        #import pdb; pdb.set_trace() #<<<<<
         if shallUseAuth:
             if self.tokens is None:
                 try:
                     self.loadTokens()
                 except FileNotFoundError:
                     self.login()
+
+
+        def performRequest(url):
+            if self.accessTokenExpired:
+                self.refreshAccessToken()
+
             headers.update({
                 'Authorization': f'Bearer {self.tokens.access_token}',
             })
-
-        def performRequest(url):
             response = requests.get(url, headers=headers)
-            print(response.status_code) #<<<<<
             if response.status_code == requests.codes.unauthorized:
                 self.authenticate()
                 headers.update({

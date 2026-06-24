@@ -14,6 +14,7 @@ Usage:
 """
 
 import base64
+import datetime as dt
 import hashlib
 import http.server
 import json
@@ -25,6 +26,7 @@ import time
 import urllib.parse
 import urllib.request
 import webbrowser
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -50,6 +52,9 @@ CALLBACK_PORT = 12345
 LOGIN_TIMEOUT = 60
 
 
+def gen_timestamp():
+    return dt.datetime.now(dt.timezone.utc).timestamp()
+
 # ---------------------------------------------------------------------------
 # Data classes
 # ---------------------------------------------------------------------------
@@ -59,6 +64,11 @@ class TokenResponse:
     refresh_token: str
     expires_in: int
     token_type: str
+    timestamp: float | None = None
+
+    def __post_init__(self):
+        if self.timestamp is None:
+            self.timestamp = gen_timestamp()
 
     @property
     def as_json(self):
@@ -67,6 +77,7 @@ class TokenResponse:
             'refresh_token': self.refresh_token,
             'expires_in': self.expires_in,
             'token_type': self.token_type,
+            'timestamp': self.timestamp,
         })
 
     @classmethod
@@ -76,6 +87,7 @@ class TokenResponse:
             refresh_token = token_dict['refresh_token'],
             expires_in = token_dict['expires_in'],
             token_type = token_dict['token_type'],
+            timestamp = token_dict['timestamp'],
         )
 
     @classmethod
