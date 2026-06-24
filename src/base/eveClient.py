@@ -87,7 +87,7 @@ class DataSource:
         ensureDir(self.configDir)
 
 
-    def saveTokens(self, tokens: dict):
+    def saveTokens(self, tokens: auth.TokenResponse):
         with open(self.tokenPath, 'w') as tokenFile:
             tokenFile.write(tokens.as_json)
 
@@ -97,14 +97,17 @@ class DataSource:
             self.tokens = auth.TokenResponse.from_json(tokenContents)
             return self.tokens
 
+    def login(self):
+        self.tokens = auth.authenticate(self.clientId)
+        self.saveTokens(self.tokens)
+
     def authenticate(self):
         try:
-            self.loadTokens()
-        except Exception:
-            self.tokens = auth.authenticate(self.clientId)
-            self.saveTokens(self.tokens)
+            self.refreshAccessToken()
+        except Exception: # TODO: Catch correct exception
+            self.login()
 
-    def isAuthenticated(self):
+    def hasCredentials(self):
         return self.tokens != None
 
     '''
@@ -116,28 +119,43 @@ class DataSource:
         # User o authorization code para obter tokens
     '''
 
-    def refresh_access_token(self):
+    def refreshAccessToken(self):
         self.tokens = auth.refresh_access_token(self.tokens.refresh_token)
+        self.saveTokens(self.tokens)
 
 
     def get(self, path, retries = 0, **params):
+        shallUseAuth = params.get('useAuth') or False
         params['datasource'] = self.serverName
         filterStr = '&'.join([f'{k}={v}' for k, v in params.items()])
         url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}?{filterStr}'
 
-        self.loadTokens()
         headers = {}
-        if self.isAuthenticated():
+        #import pdb; pdb.set_trace() #<<<<<
+        if shallUseAuth:
+            if self.tokens is None:
+                try:
+                    self.loadTokens()
+                except FileNotFoundError:
+                    self.login()
             headers.update({
                 'Authorization': f'Bearer {self.tokens.access_token}',
             })
 
         def performRequest(url):
             response = requests.get(url, headers=headers)
+            print(response.status_code) #<<<<<
             if response.status_code == requests.codes.unauthorized:
-                self.tokens = auth.refresh_access_token(self.tokens['refresh_token'])
-            response.raise_for_status()
+                self.authenticate()
+                headers.update({
+                    'Authorization': f'Bearer {self.tokens.access_token}',
+                })
+                response = requests.get(url, headers=headers)
+                response.raise_for_status()
+            elif response.status_code >= 400:
+                response.raise_for_status()
             return response
+
         response = retry(retries, performRequest, exceptions=requests.exceptions.HTTPError)(url)
 
         jsonResponse = response.content
@@ -239,7 +257,7 @@ class DataSource:
 
 
     def getCharacterInventory(self, characterId):
-        response = self.get(f'characters/{characterId}/assets')
+        response = self.get(f'characters/{characterId}/assets', useAuth = True)
         return response.data
 
 
