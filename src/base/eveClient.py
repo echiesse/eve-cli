@@ -153,12 +153,13 @@ class DataSource:
 
 
         def performRequest(url):
-            if self.accessTokenExpired:
-                self.refreshAccessToken()
+            if shallUseAuth:
+                if self.accessTokenExpired:
+                    self.refreshAccessToken()
 
-            headers.update({
-                'Authorization': f'Bearer {self.tokens.access_token}',
-            })
+                headers.update({
+                    'Authorization': f'Bearer {self.tokens.access_token}',
+                })
             response = requests.get(url, headers=headers)
             if response.status_code == requests.codes.unauthorized:
                 self.authenticate()
