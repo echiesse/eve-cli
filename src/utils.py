@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import time
 from collections import deque
 from datetime import datetime
 
@@ -54,3 +55,13 @@ def pprint(val, ret = None, level = 0):
 
 def perror(*msg):
     print(*msg, file=sys.stderr)
+
+
+
+def timeit(fn):
+    def wrapper(*args, **kwargs):
+        t = time.time()
+        ret = fn(*args, **kwargs)
+        print(f't = {time.time() - t}')
+        return ret
+    return wrapper
