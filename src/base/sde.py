@@ -2,6 +2,7 @@ import re
 import os
 import sys
 import shutil
+import time
 import zipfile
 import requests
 import yaml
@@ -25,7 +26,8 @@ class SDEFetchLinkNotFoundException(SDEException):
 class SDEManager:
     BLUEPRINT_FILE_PATH = os.path.normpath('blueprints.yaml')
     TYPE_ID_FILE_PATH = os.path.normpath('types.yaml')
-    TYPEID_INDEX_FILE_PATH = os.path.normpath('resources/typeIDs.idx')
+    TYPE_NAME_INDEX_FILE_PATH = os.path.normpath('resources/typeNameToID.idx')
+    TYPE_ID_INDEX_FILE_PATH = os.path.normpath('resources/typeIDToName.idx')
     BLUEPRINT_TYPEID_INDEX_FILE_PATH = os.path.normpath('resources/blueprintTypeIDs.idx')
 
 
@@ -34,8 +36,9 @@ class SDEManager:
         self.dataDir = os.path.abspath(os.path.normpath(dataDir))
         self.archiveName = archiveName
         self.typeIdIndex = None
+        self.typeNameIndex = None
         self.blueprintTypeIdIndex = None
-
+        self.items = None
 
     @property
     def sdeFilePath(self):
@@ -102,26 +105,36 @@ class SDEManager:
                     jsonOutput.write(content)
 
 
-    def buildTypeIdIndex(self):
-        typeIdMap = self.buildTypeIdMap()
-        with open(self.TYPEID_INDEX_FILE_PATH, 'w', encoding='utf-8') as indexFile:
-            for name, id in typeIdMap.items():
-                indexFile.write(f'{name}\t{id}\n')
+    def buildTypeIdIndices(self):
+        typeNameMap, typeIdMap = self.buildTypeIdMap()
+        with (
+            open(self.TYPE_NAME_INDEX_FILE_PATH, 'w', encoding='utf-8') as nameIndexFile,
+            open(self.TYPE_ID_INDEX_FILE_PATH, 'w', encoding='utf-8') as idIndexFile
+        ):
+            for name, id in typeNameMap.items():
+                nameIndexFile.write(f'{name}\t{id}\n')
+                idIndexFile.write(f'{id}\t{name}\n')
 
+
+    def loadTypes(self):
+        if self.items is None:
+            with open(os.path.join(self.dataDir, self.TYPE_ID_FILE_PATH), encoding='utf-8') as inputDataFile:
+                self.items = yaml.safe_load(inputDataFile)
+        return self.items
 
     def buildTypeIdMap(self):
-        items = None
-        with open(os.path.join(self.dataDir, self.TYPE_ID_FILE_PATH), encoding='utf-8') as inputDataFile:
-            items = yaml.safe_load(inputDataFile)
+        items = self.loadTypes()
 
-        mapping = {}
+        name_id_mapping = {}
+        id_name_mapping = {}
         for typeId, item in items.items():
             if item.get('name', {}).get('en') == None:
                 print(f'!!! Item Name Not Found: {typeId}')
                 continue
-            mapping[item['name']['en']] = typeId
+            name_id_mapping[item['name']['en']] = typeId
+            id_name_mapping[typeId] = item['name']['en']
 
-        return mapping
+        return name_id_mapping, id_name_mapping
 
 
     def buildBlueprintTypeIdIndex(self):
@@ -148,9 +161,14 @@ class SDEManager:
         return bpMap
 
 
+    def loadTypeNameIndex(self):
+        if self.typeNameIndex is None:
+            self.typeNameIndex = self.loadIndex(self.TYPE_NAME_INDEX_FILE_PATH)
+
+
     def loadTypeIDIndex(self):
         if self.typeIdIndex is None:
-            self.typeIdIndex = self.loadIndex(self.TYPEID_INDEX_FILE_PATH)
+            self.typeIdIndex = self.loadIndex(self.TYPE_ID_INDEX_FILE_PATH)
 
 
     def loadBlueprintTypeIDIndex(self):
@@ -170,11 +188,11 @@ class SDEManager:
 
 
     def searchItem(self, term):
-        self.loadTypeIDIndex()
+        self.loadTypeNameIndex()
 
         pattern = re.compile(term, re.IGNORECASE)
         results = []
-        for name, typeId in self.typeIdIndex.items():
+        for name, typeId in self.typeNameIndex.items():
             m = pattern.search(name)
             if m is not None:
                 results.append({
@@ -182,6 +200,10 @@ class SDEManager:
                     'name': name,
                 })
         return results
+
+    def getItemName(self, id):
+        self.loadTypeIDIndex()
+        return self.typeIdIndex[id]
 
 
     def loadBlueprint(self, blueprintPath):
