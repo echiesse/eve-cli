@@ -137,6 +137,18 @@ class DataSource:
         return auth.gen_timestamp() > expiryTimestamp
 
 
+    def getAllPages(self, path, retries = 0, **params):
+        page = 1
+        data = []
+        response = None
+        while response is None or page <= response.pageCount:
+            response = self.get(path, page=f'{page}', useAuth = True)
+            data.extend(response.data)
+            page += 1
+
+        return ESIResponse(data, response.pageCount)
+
+
     def get(self, path, retries = 0, **params):
         shallUseAuth = params.get('useAuth') or False
         params['datasource'] = self.serverName
@@ -276,14 +288,8 @@ class DataSource:
 
 
     def getCharacterInventory(self, characterId):
-        page = 1
-        data = []
-        response = None
-        while response is None or page <= response.pageCount:
-            response = self.get(f'characters/{characterId}/assets', page=f'{page}', useAuth = True)
-            data.extend(response.data)
-            page += 1
-        return data
+        response = self.getAllPages(f'characters/{characterId}/assets', useAuth = True)
+        return response.data
 
 
     def getIndustryFacilities(self):
