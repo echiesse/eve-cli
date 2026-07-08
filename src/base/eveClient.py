@@ -217,6 +217,9 @@ class DataSource:
         response = self.post(f'universe/names', data = data)
         return response.data
 
+    # Bulk names to ids
+    #https://esi.evetech.net/universe/ids
+
     def search(self, term, *, categories, strict=False, page = 1):
         path = 'search'
         categories_param = ",".join(categories)
@@ -273,8 +276,14 @@ class DataSource:
 
 
     def getCharacterInventory(self, characterId):
-        response = self.get(f'characters/{characterId}/assets', useAuth = True)
-        return response.data
+        page = 1
+        data = []
+        response = None
+        while response is None or page <= response.pageCount:
+            response = self.get(f'characters/{characterId}/assets', page=f'{page}', useAuth = True)
+            data.extend(response.data)
+            page += 1
+        return data
 
 
     def getIndustryFacilities(self):
