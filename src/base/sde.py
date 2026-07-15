@@ -201,7 +201,7 @@ class SDEManager:
                 })
         return results
 
-    def getItemName(self, id):
+    def getItemType(self, id):
         self.loadTypeIDIndex()
         return self.typeIdIndex[id]
 
