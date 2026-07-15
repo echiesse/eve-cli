@@ -191,16 +191,42 @@ class DataSource:
 
         return ESIResponse(json.loads(jsonResponse), pageCount)
 
-    def post(self, path, data):
+    def post(self, path, useAuth = False, **kwargs):
         url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}'
 
-        response = requests.post(url, data = data)
+        response = self._request(requests.post, url, useAuth = useAuth, **kwargs)
         response.raise_for_status()
 
         jsonResponse = response.content
         pageCount = int(response.headers.get('X-Pages') or 1)
 
         return ESIResponse(json.loads(jsonResponse), pageCount)
+
+
+    def _request(self, method, *args, **kwargs):
+        shallUseAuth = kwargs.pop('useAuth') or False
+        if shallUseAuth:
+            if self.accessTokenExpired:
+                self.refreshAccessToken()
+
+            headers = kwargs.get('headers') or {}
+            headers.update({
+                'Authorization': f'Bearer {self.tokens.access_token}',
+            })
+            kwargs['headers'] = headers
+        response = method(*args, **kwargs)
+        if response.status_code == requests.codes.unauthorized:
+            self.authenticate()
+            headers.update({
+                'Authorization': f'Bearer {self.tokens.access_token}',
+            })
+            response = method(*args, *kwargs)
+            response.raise_for_status()
+        elif response.status_code >= 400:
+            print(response.text, file=sys.stderr)
+            response.raise_for_status()
+        return response
+
 
     def getSystem(self, systemId):
         response = self.get(f'universe/systems/{systemId}')
@@ -291,6 +317,16 @@ class DataSource:
         response = self.getAllPages(f'characters/{characterId}/assets', useAuth = True)
         return response.data
 
+
+    def getCharacterAssetNames(self, characterId, assetIds: list[int]):
+        #https://esi.evetech.net/characters/{character_id}/assets/names
+
+        response = self.post(
+            f'characters/{characterId}/assets/names',
+            json = assetIds,
+            useAuth = True
+        )
+        return response.data
 
     def getIndustryFacilities(self):
         path = '/industry/facilities/'
