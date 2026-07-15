@@ -8,6 +8,8 @@ import requests
 from base import eveClient
 
 
+JITA_4_4_STATION_ID = '60003760'
+
 class Options:
     pass
 
@@ -41,4 +43,3 @@ if __name__ == '__main__':
     elapsedTime = datetime.now() - start
     if options.verbose:
         print(f'Tempo: {elapsedTime.total_seconds()}s')
-
