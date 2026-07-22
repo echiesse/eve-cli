@@ -7,17 +7,6 @@ sde = sdeManagerFromConfig()
 CHARACTER_ID = '2117307808'
 
 
-INDENT = '  '
-def printDeep(val, level=0):
-    indent = INDENT * level
-    if isinstance(val, dict):
-        for k, v in val.items():
-            print(f'{indent}{k}')
-            printDeep(v, level+1)
-    else:
-        print(f'{indent}{val}')
-
-
 '''
  {'is_blueprint_copy': True,
   'is_singleton': True,

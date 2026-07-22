@@ -53,6 +53,16 @@ def pprint(val, ret = None, level = 0):
         ret.extend(level * INDENT, str(val))
 
 
+def printDeep(val, level=0):
+    indent = INDENT * level
+    if isinstance(val, dict):
+        for k, v in val.items():
+            print(f'{indent}{k}')
+            printDeep(v, level+1)
+    else:
+        print(f'{indent}{val}')
+
+
 def perror(*msg):
     print(*msg, file=sys.stderr)
 
