@@ -12,6 +12,8 @@ from utils import *
 ESI_HOST_URL = 'https://esi.evetech.net'
 ESI_VERSION_PATH = 'latest'
 
+MAX_API_ITEMS = 1000
+
 class ServerNames:
     TRANQUILITY = 'tranquility'
     SINGULARITY = 'singularity'
