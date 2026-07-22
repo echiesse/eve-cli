@@ -72,6 +72,19 @@ def getItemNames(tranquility, characterId, rawInventory): # -> dict[id: name]
 
     return names
 
+
+def filterChildren(inventory):
+    items = []
+    for itemId, item in inventory.items():
+        if isLeafNode(item):
+            items.append(item)
+    return items
+
+
+def isLeafNode(node):
+    return node.get('item_id') is not None
+
+
 def printInventory(inventory, itemNames, level=0):
     indent = INDENT * level
     for itemId, contents in inventory.items():
@@ -79,7 +92,7 @@ def printInventory(inventory, itemNames, level=0):
         if name is None:
             name = STATIONS.get(int(itemId))
         name = name or '?????'
-        if contents.get('item_id') is None: # branch node
+        if not isLeafNode(contents): # branch node
             #name = location['name'] if location is not None else STATIONS.get(itemId) or 'TAMA ???'
             print(f'{indent}{name}:')
             printInventory(contents, itemNames, level+1)
