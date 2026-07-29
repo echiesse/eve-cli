@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+import json
+
 from najha import functional as f
 
 
@@ -7,6 +11,18 @@ class PriceTable:
 
     def __str__(self) -> str:
         return '\n'.join(map(str, self.items))
+
+    @classmethod
+    def fromJson(cls, jsonData):
+        data = json.loads(jsonData)
+        table = cls()
+        for id, item in data.items():
+            table.appendItem(PriceTableItem.fromDict(id, item))
+
+        return table
+
+    def appendItem(self, item: PriceTableItem):
+        self.items.append(item)
 
     def append(self, id, name, buyPrice, buyExtra, sellPrice, sellExtra):
         item = PriceTableItem(id, name, buyPrice, buyExtra, sellPrice, sellExtra)
@@ -70,6 +86,17 @@ class PriceTableItem:
         self.materialCost = None
         self.bpCopyCost = None
         self.bpInventionCost = None
+
+    @classmethod
+    def fromDict(cls, id, item):
+        return cls(
+            id,
+            item['name'],
+            item['buyPrice'],
+            item['buyExtra'],
+            item['sellPrice'],
+            item['sellExtra'],
+        )
 
     @property
     def asdict(self):
