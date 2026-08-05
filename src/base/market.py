@@ -89,7 +89,7 @@ class PriceTableItem:
 
     @classmethod
     def fromDict(cls, id, item):
-        return cls(
+        instance = cls(
             id,
             item['name'],
             item['buyPrice'],
@@ -97,6 +97,16 @@ class PriceTableItem:
             item['sellPrice'],
             item['sellExtra'],
         )
+
+        instance.materialCost = item['materialCost']
+        instance.averagePrice = item['averagePrice']
+        instance.adjustedPrice = item['adjustedPrice']
+        instance.estimatedItemValue = item['estimatedItemValue']
+        instance.installationCost = item['installationCost']
+        instance.bpCopyCost = item['bpCopyCost']
+        instance.bpInventionCost = item['bpInventionCost']
+
+        return instance
 
     @property
     def asdict(self):
