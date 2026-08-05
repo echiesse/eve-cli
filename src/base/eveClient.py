@@ -1,5 +1,6 @@
 import json
 import os
+from collections.abc import Callable
 
 import requests
 
@@ -33,7 +34,7 @@ CATEGORIES = {
 }
 
 
-def paginatedRequest(requestFn, responseHandler):
+def paginatedRequest(requestFn, responseHandler: Callable[[requests.Response], list]):
     results = []
 
     pageResults = None
@@ -291,6 +292,30 @@ class DataSource:
         orders = paginatedRequest(performRequest, handleResponse)
 
         return orders
+
+
+    def getCharacterOrders(self,
+        characterId,
+        #orderType = 'all',
+        locationId = None,
+        retries = 0
+    ):
+        path = f'characters/{characterId}/orders'
+
+        params = {
+            #'order_type': orderType,
+            'useAuth': True,
+        }
+
+        def performRequest(page):
+            return self.get(path, retries = retries, page = page, **params)
+
+        orders = paginatedRequest(performRequest, lambda response: response.data)
+        if locationId is not None:
+            orders = list(filter(lambda o: o['location_id'] == locationId, orders))
+
+        return orders
+
 
 
     def getPriceEstimates(self):

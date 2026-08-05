@@ -62,6 +62,9 @@ def printDeep(val, level=0):
     else:
         print(f'{indent}{val}')
 
+def jprint(d, indent = 2):
+    print(json.dumps(d, indent=indent))
+
 
 def perror(*msg):
     print(*msg, file=sys.stderr)
@@ -75,3 +78,7 @@ def timeit(fn):
         print(f't = {time.time() - t}')
         return ret
     return wrapper
+
+def saveJson(data: dict, path, indent=None):
+    with open(path, 'w') as json_file:
+        json.dump(data, json_file, indent=indent)
