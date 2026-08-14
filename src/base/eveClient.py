@@ -194,6 +194,11 @@ class DataSource:
 
         return ESIResponse(json.loads(jsonResponse), pageCount)
 
+    def rawget(self, path, useAuth = False, **kwargs):
+        url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}'
+
+        return self._request(requests.get, url, useAuth = useAuth, **kwargs)
+
     def post(self, path, useAuth = False, **kwargs):
         url = f'{ESI_HOST_URL}/{ESI_VERSION_PATH}/{path}'
 
@@ -209,6 +214,12 @@ class DataSource:
     def _request(self, method, *args, **kwargs):
         shallUseAuth = kwargs.pop('useAuth') or False
         if shallUseAuth:
+            if self.tokens is None:
+                try:
+                    self.loadTokens()
+                except FileNotFoundError:
+                    self.login()
+
             if self.accessTokenExpired:
                 self.refreshAccessToken()
 
@@ -316,6 +327,22 @@ class DataSource:
 
         return orders
 
+    #https://esi.evetech.net/characters/{character_id}/wallet/transactions
+    def getCharacterTransations(self,
+        characterId,
+        fromId = None,
+        retries = 0
+    ):
+        path = f'characters/{characterId}/wallet/transactions'
+
+        params = {
+            'useAuth': True,
+        }
+
+        response = self.rawget(path, **params)
+        jprint(dict(response.headers), file=sys.stderr)
+
+        return response.json()
 
 
     def getPriceEstimates(self):

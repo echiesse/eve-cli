@@ -7,13 +7,13 @@ from base import eveClient
 from base.inventory import filterChildren
 from utils import jprint, saveJson
 
+import config
+
+CHARACTER_ID = config.CHARACTER_ID_AERO_SCRIPTER
+
+
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()
-
-CHARACTER_ID_AERO_SCRIPTER = '2117307808'
-CHARACTER_ID_AKVO_SCRIPTER = '2116727652'
-
-CHARACTER_ID = CHARACTER_ID_AERO_SCRIPTER
 
 HOME_DIR = '..' # TODO: Use the user home in production
 #HOME_DIR = os.path.expanduser('~/.evecli') # TODO: Use the user home in production

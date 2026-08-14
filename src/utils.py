@@ -62,8 +62,8 @@ def printDeep(val, level=0):
     else:
         print(f'{indent}{val}')
 
-def jprint(d, indent = 2):
-    print(json.dumps(d, indent=indent))
+def jprint(d, indent = 2, file = sys.stdout):
+    print(json.dumps(d, indent=indent), file=file)
 
 
 def perror(*msg):
