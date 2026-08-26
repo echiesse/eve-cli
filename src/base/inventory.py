@@ -2,6 +2,8 @@ import math
 
 from application.factories import sdeManagerFromConfig
 from base import eveClient
+from support.algorithm import listToDict, sumField
+from utils import loadJson
 sde = sdeManagerFromConfig()
 
 INDENT = '  '
@@ -73,7 +75,7 @@ def getItemNames(tranquility, characterId, rawInventory): # -> dict[id: name]
     return names
 
 
-def filterChildren(inventory):
+def filterLeaf(inventory):
     items = []
     for itemId, item in inventory.items():
         if isLeafNode(item):
@@ -83,6 +85,14 @@ def filterChildren(inventory):
 
 def isLeafNode(node):
     return node.get('item_id') is not None
+
+
+def loadInventory(path):
+    return loadJson(path)
+
+
+def consolidateInventory(inventory):
+    return listToDict(inventory, 'type_id', sumField('quantity'))
 
 
 def printInventory(inventory, itemNames, level=0):

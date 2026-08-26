@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 from najha import functional as f
+from utils import *
 
 
 class PriceTable:
@@ -189,6 +190,10 @@ def cleanPrice(price, topOrder, actualCount):
         extra = f'(only {actualCount} orders)'
 
     return price, extra
+
+
+def loadMarketOrders(path):
+    return listToDict(loadJson(path), 'order_id')
 
 
 if __name__ == '__main__':

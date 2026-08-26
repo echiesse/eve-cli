@@ -2,11 +2,21 @@ import json
 import os
 
 from application.factories import sdeManagerFromConfig
-from base.inventory import buildInventory, getItemNames, printInventory
+from base.inventory import (
+    buildInventory,
+    consolidateInventory,
+    getItemNames,
+    loadInventory,
+)
+
 from base import eveClient
-from base.inventory import filterChildren
+from base.inventory import filterLeaf
+
+import support.functional as f
+from support.algorithm import diffByKeyZip
 
 import config
+from utils import jprint
 
 CHARACTER_ID = config.CHARACTER_ID_AERO_SCRIPTER
 
@@ -14,10 +24,8 @@ tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()
 
 
-HOME_DIR = '..' # TODO: Use the user home in production
-#HOME_DIR = os.path.expanduser('~/.evecli') # TODO: Use the user home in production
 
-INVENTORY_FILE = os.path.join(HOME_DIR, 'inventory.json')
+INVENTORY_FILE = os.path.join(config.HOME_DIR, 'inventory.json')
 
 '''
 id, type_name, quantity, current_cost
@@ -34,12 +42,15 @@ def buildHangar(items, itemNames):
     for item in items:
         hangar.append({
             'id': item['item_id'],
+            'type_id': item['type_id'],
             'name': itemNames.get(item['item_id']),
             'quantity': item['quantity'],
             'average_cost': 0,
         })
 
     return hangar
+
+
 
 JITA_4_4_STATION_ID = '60003760' # TODO: Remove so the user must always pass via command line arguments
 
@@ -50,8 +61,21 @@ def run(characterId, stationId):
     inventory = buildInventory(rawInventory)
     #print(inventory)
     stationInventory = inventory[int(stationId)]
-    hangarItems = filterChildren(stationInventory)
+    hangarItems = filterLeaf(stationInventory)
     hangar = buildHangar(hangarItems, itemNameDict)
+
+    current_inventory = consolidateInventory(loadInventory(INVENTORY_FILE))
+    new_inventory = consolidateInventory(hangar)
+
+    inv_diff = diffByKeyZip(new_inventory, current_inventory, 'quantity')
+
+    jprint(inv_diff)
+
+
     with open(INVENTORY_FILE, 'w') as json_hangar:
         json.dump(hangar, json_hangar, indent=2)
+
+
+
+
     #printHangar(hangarItems, itemNameDict)
