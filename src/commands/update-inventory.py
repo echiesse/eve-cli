@@ -16,7 +16,7 @@ import support.functional as f
 from support.algorithm import diffByKeyZip
 
 import config
-from support.utils import jprint
+from support.utils import ensureDir, jprint, showDateTime
 
 CHARACTER_ID = config.CHARACTER_ID_AERO_SCRIPTER
 
@@ -69,14 +69,14 @@ def run(characterId, stationId):
 
     inv_diff = diffByKeyZip(new_inventory, current_inventory, 'quantity')
 
-    jprint(inv_diff)
+    #jprint(inv_diff)
 
-    invontoryFilename = f'prices_{stationId}_{showDateTime()}.json'
+    characterDataDir = os.path.join(config.EVECLI_DIR, 'data', characterId)
+    ensureDir(characterDataDir)
+    inventoryFilename = f'inventory-{stationId}-{showDateTime()}.json'
+    inventoryPath = os.path.join(characterDataDir, inventoryFilename)
 
-    with open(INVENTORY_FILE, 'w') as json_hangar:
+    with open(inventoryPath, 'w') as json_hangar:
         json.dump(hangar, json_hangar, indent=2)
-
-
-
 
     #printHangar(hangarItems, itemNameDict)
