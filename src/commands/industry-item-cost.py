@@ -2,8 +2,9 @@ import os
 import json
 
 from application.factories import sdeManagerFromConfig
-from base import eveClient, market
+from base import eveClient
 from base.blueprints import *
+from base.evecli import market
 
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 

@@ -1,7 +1,8 @@
 import os
 import json
 
-from base import eveClient, display
+from base import eveClient
+from base.evecli import display
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 
 MAX_WORKERS = 10

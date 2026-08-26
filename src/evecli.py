@@ -14,7 +14,7 @@ class Options:
     pass
 
 
-def run(*args, **kwargs):
+def run():
     commandName = sys.argv[1]
     args = sys.argv[2:]
     processCommand(commandName, *args)

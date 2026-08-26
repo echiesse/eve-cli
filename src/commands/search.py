@@ -3,7 +3,8 @@ import multiprocessing as mp
 
 import najha.functional as f
 
-from base import eveClient, display
+from base import eveClient
+from base.evecli import display
 
 MAX_WORKERS = 10
 
@@ -41,5 +42,3 @@ def run(searchTerm, categories=None):
         for item in items:
             print(f'    {item["id"]} | {item["name"]}')
         print()
-
-

@@ -1,10 +1,7 @@
-import json
 import os
 
 from application.factories import sdeManagerFromConfig
-from base.inventory import buildInventory, getItemNames, printInventory
 from base import eveClient
-from base.inventory import filterLeaf
 from support.utils import ensureDir, jprint, saveJson, showDateTime
 
 import config
@@ -33,4 +30,4 @@ def run(characterId, locationId):
 
     orders = tranquility.getCharacterOrders(characterId, int(locationId))
     saveJson(orders, ordersFilePath, indent = 2)
-    jprint(orders)
+    jprint(orders) # <<<<< Remove

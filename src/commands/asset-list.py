@@ -1,5 +1,5 @@
 from application.factories import sdeManagerFromConfig
-from base.inventory import buildInventory, getItemNames, printInventory
+from base.evecli.inventory import buildInventory, getItemNames, printInventory
 from base import eveClient
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()

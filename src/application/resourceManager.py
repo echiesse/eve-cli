@@ -1,7 +1,7 @@
 import os
 
 from base.support import *
-from base import display
+from base.evecli import display
 
 RESOURCE_DIR = 'resources'
 

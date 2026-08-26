@@ -3,6 +3,8 @@ import json
 import sys
 
 
+# TODO: Remove this file in favor of `support/utils.py`
+
 def loadJson(filePath):
     data = None
     with suppress(FileNotFoundError):

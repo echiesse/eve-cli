@@ -4,7 +4,7 @@ from collections.abc import Callable
 
 import requests
 
-import base.authentication as auth
+import base.evecli.authentication as auth
 from support.utils import *
 
 #https://esi.evetech.net/v1/markets/10000001/orders/?datasource=tranquility&order_type=sell&page=1

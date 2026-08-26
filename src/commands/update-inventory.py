@@ -2,7 +2,7 @@ import json
 import os
 
 from application.factories import sdeManagerFromConfig
-from base.inventory import (
+from base.evecli.inventory import (
     buildInventory,
     consolidateInventory,
     getItemNames,
@@ -10,8 +10,9 @@ from base.inventory import (
 )
 
 from base import eveClient
-from base.inventory import filterLeaf
+from base.evecli.inventory import filterLeaf
 
+from base.evecli.loader import getCharacterDataDir
 import support.functional as f
 from support.algorithm import diffByKeyZip
 
@@ -25,7 +26,7 @@ sde = sdeManagerFromConfig()
 
 
 
-INVENTORY_FILE = os.path.join(config.HOME_DIR, 'inventory.json')
+INVENTORY_FILE_NAME = 'inventory.json'
 
 '''
 id, type_name, quantity, current_cost
@@ -64,19 +65,23 @@ def run(characterId, stationId):
     hangarItems = filterLeaf(stationInventory)
     hangar = buildHangar(hangarItems, itemNameDict)
 
-    current_inventory = consolidateInventory(loadInventory(INVENTORY_FILE))
+    characterDataDir = getCharacterDataDir(characterId)
+    inventoryFile = os.path.join(characterDataDir, INVENTORY_FILE_NAME)
+    current_inventory = consolidateInventory(loadInventory(inventoryFile))
     new_inventory = consolidateInventory(hangar)
 
     inv_diff = diffByKeyZip(new_inventory, current_inventory, 'quantity')
 
     #jprint(inv_diff)
 
-    characterDataDir = os.path.join(config.EVECLI_DIR, 'data', characterId)
     ensureDir(characterDataDir)
     inventoryFilename = f'inventory-{stationId}-{showDateTime()}.json'
     inventoryPath = os.path.join(characterDataDir, inventoryFilename)
 
     with open(inventoryPath, 'w') as json_hangar:
+        json.dump(hangar, json_hangar, indent=2)
+
+    with open(inventoryFile, 'w') as json_hangar:
         json.dump(hangar, json_hangar, indent=2)
 
     #printHangar(hangarItems, itemNameDict)

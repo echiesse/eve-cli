@@ -1,7 +1,7 @@
 import json
 import os
 
-from base.market import PriceTable
+from base.evecli.market import PriceTable
 from pathlib import Path
 
 

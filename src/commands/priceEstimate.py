@@ -4,8 +4,9 @@ import sys
 import multiprocessing as mp
 
 from application.factories import sdeManagerFromConfig
-from base import eveClient, market
+from base import eveClient
 from base.blueprints import *
+from base.evecli import market
 from base.support import loadJson
 from extra.queries import *
 from support.filesystem import pushd

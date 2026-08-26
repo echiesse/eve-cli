@@ -1,6 +1,7 @@
-from base import eveClient, display
+from base import eveClient
 
 from application.factories import sdeManagerFromConfig
+from base.evecli import display
 
 
 MAX_WORKERS = 20
