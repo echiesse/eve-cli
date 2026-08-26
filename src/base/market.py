@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 
 from najha import functional as f
-from utils import *
+from support.algorithm import listToDict
+from support.utils import *
 
 
 class PriceTable:

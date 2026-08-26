@@ -3,7 +3,7 @@ import math
 from application.factories import sdeManagerFromConfig
 from base import eveClient
 from support.algorithm import listToDict, sumField
-from utils import loadJson
+from support.utils import loadJson
 sde = sdeManagerFromConfig()
 
 INDENT = '  '

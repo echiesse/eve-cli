@@ -5,7 +5,7 @@ from application.factories import sdeManagerFromConfig
 from base.inventory import buildInventory, getItemNames, printInventory
 from base import eveClient
 from base.inventory import filterLeaf
-from utils import jprint, saveJson
+from support.utils import jprint, saveJson
 
 import config
 

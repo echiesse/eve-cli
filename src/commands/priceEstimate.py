@@ -9,7 +9,7 @@ from base.blueprints import *
 from base.support import loadJson
 from extra.queries import *
 from support.filesystem import pushd
-from utils import *
+from support.utils import *
 
 ORDER_TYPES = ['sell', 'buy', 'all']
 MAX_WORKERS = 10

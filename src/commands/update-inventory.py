@@ -16,7 +16,7 @@ import support.functional as f
 from support.algorithm import diffByKeyZip
 
 import config
-from utils import jprint
+from support.utils import jprint
 
 CHARACTER_ID = config.CHARACTER_ID_AERO_SCRIPTER
 
@@ -71,6 +71,7 @@ def run(characterId, stationId):
 
     jprint(inv_diff)
 
+    invontoryFilename = f'prices_{stationId}_{showDateTime()}.json'
 
     with open(INVENTORY_FILE, 'w') as json_hangar:
         json.dump(hangar, json_hangar, indent=2)

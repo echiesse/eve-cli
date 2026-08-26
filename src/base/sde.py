@@ -9,7 +9,7 @@ import yaml
 
 from lxml import etree
 
-from utils import *
+from support.utils import *
 from support.filesystem import pushd
 
 
