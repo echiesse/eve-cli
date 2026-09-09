@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from najha import functional as f
-from support.algorithm import listToDict
+from support.algorithm import groupListBy, listToDict
 from support.utils import *
 
 
@@ -195,6 +195,10 @@ def cleanPrice(price, topOrder, actualCount):
 
 def loadMarketOrders(path):
     return listToDict(loadJson(path), 'order_id')
+
+
+def consolidateByTypeId(orders):
+    return groupListBy('type_id', orders)
 
 
 if __name__ == '__main__':

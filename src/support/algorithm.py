@@ -38,6 +38,22 @@ def listToDict(l, keyField, reducer = None) -> dict:
     return res
 
 
+def groupListBy(key, items: list):
+    res = {}
+    for item in items:
+        group = res.setdefault(item[key], [])
+        group.append(item)
+    return res
+
+
+def groupDictBy(key, items: dict):
+    res = {}
+    for k, item in items.items():
+        group = res.setdefault(item[key], [])
+        group.append(item)
+    return res
+
+
 def sumField(field):
     def _sum(d1, d2):
         d1[field] += d2[field]
