@@ -1,9 +1,16 @@
+from __future__ import annotations
+
 import math
+import sys
+
+from attrs import define
 
 from application.factories import sdeManagerFromConfig
 from base import eveClient
 from support.algorithm import listToDict, sumField
-from support.utils import loadJson
+from support.utils import jprint, loadJson
+
+
 sde = sdeManagerFromConfig()
 
 INDENT = '  '
@@ -14,13 +21,27 @@ STATIONS = {
     60006427: 'Ikuchi VI - Moon 15 - Imperial Armaments Warehouse',
 }
 
+'''
+@define
+class Inventory:
+    items: list[Item | Inventory]
 
-def buildInventory(rawInventory):
+
+@define
+class Item:
+    typeId: str
+    itemId: str
+    name: str
+    quantity: int
+
+'''
+
+def buildInventory(rawInventory) -> dict:
     t = _buildInventory(rawInventory)
     return _buildInventory(rawInventory, t)
 
 
-def _buildInventory(rawInventory, treeSet = None):
+def _buildInventory(rawInventory, treeSet = None) -> dict:
     treeSet = treeSet or {}
     nonRoot = set()
     for item in rawInventory:
@@ -93,6 +114,22 @@ def loadInventory(path):
 
 def consolidateInventory(inventory):
     return listToDict(inventory, 'type_id', sumField('quantity'))
+
+
+def mergeNames(inventory: dict, itemNames: dict):
+    res = {}
+    for itemId, item in inventory.items():
+        if isLeafNode(item):
+            res[itemId] = {
+                'id': item['item_id'],
+                'type_id': item['type_id'],
+                'name': itemNames.get(item['item_id']),
+                'quantity': item['quantity'],
+                'average_cost': 0,
+            }
+        else:
+            res[itemId] = mergeNames(item, itemNames)
+    return res
 
 
 def printInventory(inventory, itemNames, level=0):
