@@ -14,6 +14,7 @@ class Station(Entity):
     # solarSystem
 
 
+# TODO: Look at base.evecli.inventory.Item. Should it be here?
 class Item(Entity):
     ''' In Eve this is a "type" or "inventory_type" '''
     def __init__(self, name):

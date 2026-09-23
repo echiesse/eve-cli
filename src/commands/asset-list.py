@@ -1,5 +1,5 @@
 from application.factories import sdeManagerFromConfig
-from base.evecli.inventory import buildInventory, getItemNames, printInventory
+from base.evecli.inventory import buildInventory, getItemNames, inventoryPrint
 from base import eveClient
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()
@@ -33,4 +33,4 @@ def run(characterId):
     itemNameDict = getItemNames(tranquility, characterId, rawInventory)
     inventory = buildInventory(rawInventory)
 
-    printInventory(inventory, itemNameDict)
+    inventoryPrint(inventory, itemNameDict)

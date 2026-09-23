@@ -4,9 +4,9 @@ import json
 import os
 
 from application.factories import sdeManagerFromConfig
-from base.evecli.inventory import buildInventory, getItemNames, printInventory
+from base.evecli.inventory import buildInventory, getItemNames, inventoryPrint
 from base import eveClient
-from base.evecli.inventory import filterLeaf
+from base.evecli.inventory import inventoryFilterLeaf
 from support.utils import jprint
 
 import config

@@ -4,11 +4,12 @@ import os
 from application.factories import sdeManagerFromConfig
 from base.evecli.market import consolidateByTypeId
 from support.algorithm import diffByKeyZip, groupListBy, groupDictBy, listToDict
+from support.math import weightedAverage
 from support.utils import jprint
 
 sde = sdeManagerFromConfig()
 
-from base.evecli.inventory import consolidateInventory
+from base.evecli.inventory import consolidateItems
 import config
 
 INVENTORY_FILE = os.path.join(config.HOME_DIR, 'inventory.json')
@@ -181,15 +182,6 @@ def run(characterId, stationId):
     jprint(ordersByTypeId)
     '''
 
-def weightedAverage(values, weights):
-    res = 0
-    W = 0
-    for i, value in enumerate(values):
-        weight = weights[i]
-        res += value * weight
-        W += weight
-
-    return res / W
 
 def update_inventory(
     inventory: list[dict],
@@ -197,8 +189,8 @@ def update_inventory(
     buy_orders: list[dict],
     new_buy_orders: list[dict],
 ):
-    inventory = consolidateInventory(inventory)
-    new_inventory = consolidateInventory(new_inventory)
+    inventory = consolidateItems(inventory)
+    new_inventory = consolidateItems(new_inventory)
 
     inventory_diff = diffByKeyZip(new_inventory, inventory, 'quantity')
 

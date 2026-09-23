@@ -6,9 +6,6 @@ from support.utils import ensureDir, jprint, saveJson, showDateTime
 
 import config
 
-CHARACTER_ID = config.CHARACTER_ID_AERO_SCRIPTER
-
-
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()
 

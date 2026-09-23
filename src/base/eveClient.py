@@ -367,7 +367,7 @@ class DataSource:
         return result
 
 
-    def getCharacterInventory(self, characterId):
+    def getCharacterInventory(self, characterId) -> list:
         response = self.getAllPages(f'characters/{characterId}/assets', useAuth = True)
         return response.data
 

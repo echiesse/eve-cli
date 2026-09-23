@@ -9,3 +9,4 @@ __pycache__
 /src/node_modules
 /src/price_history
 config.py
+*.txt
