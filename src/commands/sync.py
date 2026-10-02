@@ -2,153 +2,38 @@ import json
 import os
 
 from application.factories import sdeManagerFromConfig
+from base import eveClient
+from base.evecli.loader import getCharacterDataDir
 from base.evecli.market import consolidateByTypeId
 from support.algorithm import diffByKeyZip, groupListBy, groupDictBy, listToDict
 from support.math import weightedAverage
-from support.utils import jprint
+from support.utils import jprint, showDateTime
 
 sde = sdeManagerFromConfig()
 
-from base.evecli.inventory import consolidateItems
+from base.evecli.inventory import consolidateItems, inventoryFetch, inventorySave
 import config
 
+
+# TODO: Mover informações sobre localização e nomes de arquivos do evecli para um módulo de metadados (config) do projeto
+INVENTORY_FILE_NAME = 'inventory.json'
 INVENTORY_FILE = os.path.join(config.HOME_DIR, 'inventory.json')
 
-INVENTORY = [
-    {
-        "id": 1050561597909,
-        "type_id": 9836,
-        "name": "Consumer Electronics",
-        "quantity": 2000,
-        "average_cost": 0
-    },
-    {
-        "id": 1034471999330,
-        "type_id": 15630,
-        "name": "Republic Fleet Captain Insignia I",
-        "quantity": 6,
-        "average_cost": 100000
-    },
-    {
-        "id": 1037135761304,
-        "type_id": 25602,
-        "name": "Thruster Console",
-        "quantity": 1665,
-        "average_cost": 0
-    },
-]
+def run(characterId):
+    tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 
-NEW_INVENTORY = [
-    {
-        "id": 1050561597909,
-        "type_id": 9836,
-        "name": "Consumer Electronics",
-        "quantity": 2000,
-        "average_cost": 0
-    },
-    {
-        "id": 1034471999330,
-        "type_id": 15630,
-        "name": "Republic Fleet Captain Insignia I",
-        "quantity": 10,
-        "average_cost": 0
-    },
-    {
-        "id": 1037135761304,
-        "type_id": 25602,
-        "name": "Thruster Console",
-        "quantity": 1665,
-        "average_cost": 0
-    },
-]
-
-MARKET_ORDERS = [
-    {
-        "duration": 90,
-        "escrow": 30699000.0,
-        "is_buy_order": True,
-        "is_corporation": False,
-        "issued": "2026-06-03T03:12:01Z",
-        "location_id": 60003760,
-        "min_volume": 1,
-        "order_id": 7347452265,
-        "price": 80000.0,
-        "range": "station",
-        "region_id": 10000002,
-        "type_id": 15630,
-        "volume_remain": 45,
-        "volume_total": 50
-    },
-    {
-        "duration": 90,
-        "escrow": 30699000.0,
-        "is_buy_order": True,
-        "is_corporation": False,
-        "issued": "2026-06-03T03:12:01Z",
-        "location_id": 60003760,
-        "min_volume": 1,
-        "order_id": 7347452266,
-        "price": 81000.0,
-        "range": "station",
-        "region_id": 10000002,
-        "type_id": 15630,
-        "volume_remain": 45,
-        "volume_total": 50
-    },
-]
-
-NEW_MARKET_ORDERS = [
-    {
-        "duration": 90,
-        "escrow": 30699000.0,
-        "is_buy_order": True,
-        "is_corporation": False,
-        "issued": "2026-06-03T03:12:01Z",
-        "location_id": 60003760,
-        "min_volume": 1,
-        "order_id": 7347452265,
-        "price": 80000.0,
-        "range": "station",
-        "region_id": 10000002,
-        "type_id": 15630,
-        "volume_remain": 41,
-        "volume_total": 50
-    },
-    {
-        "duration": 90,
-        "escrow": 30699000.0,
-        "is_buy_order": True,
-        "is_corporation": False,
-        "issued": "2026-06-03T03:12:01Z",
-        "location_id": 60003760,
-        "min_volume": 1,
-        "order_id": 7347452266,
-        "price": 81000.0,
-        "range": "station",
-        "region_id": 10000002,
-        "type_id": 15630,
-        "volume_remain": 45,
-        "volume_total": 50
-    },
-]
-
-TRANSACTIONS = [
-    {
-        "client_id": 2116930837,
-        "date": "2026-07-05T01:58:07Z",
-        "is_buy": True,
-        "is_personal": True,
-        "journal_ref_id": 25774814738,
-        "location_id": 60003760,
-        "quantity": 4,
-        "transaction_id": 6829676138,
-        "type_id": 15630,
-        "unit_price": 80000.0
-    },
-]
-
-def run(characterId, stationId):
     # Obtain character's inventory
+    inventory = inventoryFetch(tranquility, characterId)
+    characterDataDir = getCharacterDataDir(characterId)
+    inventoryFile = os.path.join(characterDataDir, INVENTORY_FILE_NAME)
+    inventorySave(inventory, inventoryFile)
+
+    inventoryFilename = f'inventory-{showDateTime()}.json'
+    inventoryPath = os.path.join(characterDataDir, inventoryFilename)
+    inventorySave(inventory, inventoryPath)
+
+    #jprint(inventory)
+
     # Obtain character's market orders
     # Obtain character's wallet transactions
 
@@ -157,9 +42,9 @@ def run(characterId, stationId):
     # Update the inventory average cost
 
 
-    buyOrders = list(filter(lambda o: o.get('is_buy_order') == True, MARKET_ORDERS))
-    newbuyOrders = list(filter(lambda o: o.get('is_buy_order') == True, NEW_MARKET_ORDERS))
-    update_inventory(INVENTORY, NEW_INVENTORY, buyOrders, newbuyOrders)
+    #buyOrders = list(filter(lambda o: o.get('is_buy_order') == True, MARKET_ORDERS))
+    #newbuyOrders = list(filter(lambda o: o.get('is_buy_order') == True, NEW_MARKET_ORDERS))
+    #update_inventory(INVENTORY, NEW_INVENTORY, buyOrders, newbuyOrders)
 
     '''
     ordersByTypeId = groupBy('type_id', [

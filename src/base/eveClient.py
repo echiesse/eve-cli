@@ -1,10 +1,14 @@
 import json
+import math
 import os
 from collections.abc import Callable
 
 import requests
 
+from application.factories import sdeManagerFromConfig
+from base import eveClient
 import base.evecli.authentication as auth
+from support.algorithm import listToDict
 from support.utils import *
 
 #https://esi.evetech.net/v1/markets/10000001/orders/?datasource=tranquility&order_type=sell&page=1
@@ -367,7 +371,12 @@ class DataSource:
         return result
 
 
-    def getCharacterInventory(self, characterId) -> list:
+    def getCharacterInventory(self, characterId: int | str) -> list:
+        try:
+            characterId = int(characterId)
+        except ValueError:
+            print(f'Error: \'characterId\' must be an integer or a string with the integer representation of the character id')
+            sys.exit(1)
         response = self.getAllPages(f'characters/{characterId}/assets', useAuth = True)
         return response.data
 
@@ -385,3 +394,24 @@ class DataSource:
     def getIndustryFacilities(self):
         path = '/industry/facilities/'
         return self.get(path)
+
+    def fillAssetNames(self, rawAssetList: list, characterId):
+        ids = list(map(lambda elem: elem['item_id'], rawAssetList))
+
+        assetNames = []
+        n = len(ids)
+        nreq = math.ceil(n / eveClient.MAX_API_ITEMS)
+        for i in range(nreq):
+            _items = self.getCharacterAssetNames(
+                characterId,
+                ids[i * eveClient.MAX_API_ITEMS : (i + 1) * eveClient.MAX_API_ITEMS]
+            )
+            assetNames.extend(_items)
+
+        assetNames = listToDict(assetNames, 'item_id')
+
+        for item in rawAssetList:
+            name = assetNames[item['item_id']]['name']
+            item['name'] = None if name == 'None' else name
+
+        return rawAssetList

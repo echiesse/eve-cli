@@ -201,9 +201,9 @@ class SDEManager:
                 })
         return results
 
-    def getItemType(self, id):
+    def getTypeName(self, typeId):
         self.loadTypeIDIndex()
-        return self.typeIdIndex[id]
+        return self.typeIdIndex[typeId]
 
 
     def loadBlueprint(self, blueprintPath):

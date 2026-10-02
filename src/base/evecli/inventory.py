@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import math
 import sys
 
@@ -7,15 +8,14 @@ from attrs import define, field
 
 from application.factories import sdeManagerFromConfig
 from base import eveClient
+from base.eve import Inventory, Item, Location
 from support.algorithm import listToDict, sumField
 from support.math import weightedAverage
 from support.utils import jprint, loadJson
 
-type Inventory = dict[str, Location]
 
 sde = sdeManagerFromConfig()
 
-INDENT = '  '
 
 STATIONS = {
     60003760: 'Jita IV - Moon 4 - Caldari Navy Assembly Plant',
@@ -24,89 +24,6 @@ STATIONS = {
 }
 
 INDENT = '  '
-@define
-class Location:
-    id: str
-    items: dict[Item | Location] = field(init=False, factory=dict)
-
-    def __str__(self):
-        return self.show()
-
-    def __getitem__(self, id):
-        return self.items[id]
-
-    def values(self):
-        return self.items.values()
-
-    def setItem(self, item: Item | Location):
-        self.items[item.id] = item
-        return self
-
-    def show(self, level = 0):
-        lines = []
-        indent = INDENT * level
-        for id, item in self.items.items():
-            if isinstance(item, Location):
-                lines.append(item.show(level+1))
-            else:
-                lines.append(f'{indent}{str(item)}')
-        return '\n'.join(lines)
-
-
-    @property
-    def asdict(self):
-        ret = {}
-        for itemId, item in self.items.items():
-            ret[itemId] = item.asdict
-        return ret
-
-    def mergeNames(self, itemNames: dict) -> Location:
-        for item in self.values():
-            if isinstance(item, Item):
-                item.name = itemNames.get(item.id)
-            else: # should be a Location
-                item.mergeNames(itemNames)
-        return self
-
-    def onlyItems(self) -> list[Item]:
-        items = list(filter(lambda x: isinstance(x, Item), self.values()))
-        return items
-
-@define
-class Item:
-    id: str
-    typeId: str
-    name: str
-    quantity: int
-    averageCost: float = field(init=False, default=0)
-
-    def __getitem__(self, key):
-        return getattr(self, key)
-
-    def __setitem__(self, key, value):
-        return setattr(self, key, value)
-
-    def update(self, quantity, unitCost):
-        self.quantity += quantity
-        self.averageCost = weightedAverage(
-            [self.averageCost, unitCost],
-            [self.quantity, quantity]
-         )
-
-    @property
-    def totalCost(self):
-        return self.averageCost * self.quantity
-
-    @property
-    def asdict(self):
-        return {
-            'id': self.id,
-            'type_id': self.typeId,
-            'name': self.name,
-            'quantity': self.quantity,
-            'average_cost': self.averageCost,
-        }
-
 
 def buildInventory(rawInventory: list) -> Inventory :
     t = _buildInventory(rawInventory)
@@ -126,7 +43,11 @@ def _buildInventory(rawInventory: list, nodeSet = None) -> Inventory :
             nonRoot.add(itemId)
         else:
             # Add item to the just created node:
-            location.setItem(Item(item['item_id'], item['type_id'], '', item['quantity']))
+            try:
+                location.setItem(Item(item['item_id'], item['type_id'], '', item['quantity']))
+            except:
+                print(item)
+                raise
 
     # Filter non root items from the node set:
     inventory = {}
@@ -161,7 +82,7 @@ def getItemNames(tranquility, characterId, rawInventory): # -> dict[id: name]
         if name == 'None':
             typeID = itemDict[itemId].get('type_id')
             if typeID is not None:
-                name = sde.getItemType(str(typeID))
+                name = sde.getTypeName(str(typeID))
 
             #print(item)
         id = item['item_id']
@@ -193,30 +114,46 @@ def inventoryLoad(path):
     return loadJson(path)
 
 
+def inventorySave(rawInventory: list[dict], path: str):
+    with open(path, 'w') as inventoryFile:
+        json.dump(rawInventory, inventoryFile, indent=2)
+
+
 def inventoryMergeNames(inventory: Inventory, itemNames: dict) -> Inventory:
     for itemId, location in inventory.items():
         location.mergeNames(itemNames)
     return inventory
 
 
-def inventoryPrint(inventory, itemNames, level=0):
+def inventoryPrint(inventory: Inventory, itemNames, level=0):
     indent = INDENT * level
-    for itemId, contents in inventory.items():
-        name = itemNames.get(itemId)
+    for locationId, location in inventory.items():
+        name = itemNames.get(locationId)
         if name is None:
-            name = STATIONS.get(int(itemId))
+            name = STATIONS.get(int(locationId))
         name = name or '?????'
-        if not isLeafNode(contents): # branch node
-            #name = location['name'] if location is not None else STATIONS.get(itemId) or 'TAMA ???'
-            print(f'{indent}{name}:')
-            inventoryPrint(contents, itemNames, level+1)
-        else:
-            print(f'{indent}{name} ({contents['quantity']})')
+        print(location)
+
 
 
 def inventoryFetch(apiclient, characterId):
     rawInventory = apiclient.getCharacterInventory(characterId)
-    itemNameDict = getItemNames(apiclient, characterId, rawInventory)
+    rawInventory = apiclient.fillAssetNames(rawInventory, characterId)
+    rawInventory = inventoryFillTypeNames(rawInventory)
+
+    return rawInventory
+
+    # TODO: move the inventory pre processing to the code that will actually use the inventory
+    # Here we are just saving the inventory as it comes from the ESI.
+    # The only operation we do before saving is complement with the item name and type name
+    '''
     inventory = buildInventory(rawInventory)
     inventoryMergeNames(inventory, itemNameDict)
     return inventory
+    '''
+
+def inventoryFillTypeNames(rawInventory):
+    for item in rawInventory:
+        name = sde.getTypeName(str(item['type_id']))
+        item['type_name'] = name
+    return rawInventory
