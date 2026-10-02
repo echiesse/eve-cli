@@ -22,3 +22,13 @@ def zip_with_d(fn, xs, ys, default_y_fn):
         y = ys.get(k) or default_y_fn(x)
         ret[k] = fn(x, y)
     return ret
+
+def raises(exception_types, fn, *args, **kwargs):
+    try:
+        fn(*args, **kwargs)
+    except exception_types:
+        return True
+    except Exception:
+        pass
+
+    return False

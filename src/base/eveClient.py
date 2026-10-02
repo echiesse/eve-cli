@@ -241,7 +241,6 @@ class DataSource:
             response = method(*args, *kwargs)
             response.raise_for_status()
         elif response.status_code >= 400:
-            print(response.text, file=sys.stderr)
             response.raise_for_status()
         return response
 
@@ -390,6 +389,27 @@ class DataSource:
             useAuth = True
         )
         return response.data
+
+    def getCharactersAffiliation(self, characterIds: list[int]):
+        #https://esi.evetech.net/characters/affiliation
+
+        response = self.post(
+            'characters/affiliation',
+            json = characterIds,
+            useAuth = False
+        )
+        return response.data
+
+    def checkCharacterExists(self, characterId):
+        try:
+            self.getCharactersAffiliation([characterId])
+        except requests.exceptions.HTTPError as httpError :
+            if (httpError.response.status_code == 400 and
+                httpError.response.json()['error'] == 'Invalid character ID'):
+                return False
+
+        return True
+
 
     def getIndustryFacilities(self):
         path = '/industry/facilities/'

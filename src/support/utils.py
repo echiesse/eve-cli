@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import sys
 import json
 import time
@@ -28,6 +29,10 @@ def splitPath(path, acc = None):
 def ensureDir(path):
     if not os.path.exists(path):
         os.makedirs(path, exist_ok = True)
+
+
+def touch(path):
+    Path(path).touch()
 
 
 def showDateTime():

@@ -3,6 +3,7 @@ import os
 
 from application.factories import sdeManagerFromConfig
 from base import eveClient
+from base.evecli import cli
 from base.evecli.loader import getCharacterDataDir
 from base.evecli.market import consolidateByTypeId
 from support.algorithm import diffByKeyZip, groupListBy, groupDictBy, listToDict
@@ -21,6 +22,10 @@ INVENTORY_FILE = os.path.join(config.HOME_DIR, 'inventory.json')
 
 def run(characterId):
     tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
+
+    # Make sure the character's dir exists
+    cli.ensureCharacterDir(characterId)
+    return
 
     # Obtain character's inventory
     inventory = inventoryFetch(tranquility, characterId)

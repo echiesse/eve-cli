@@ -1,11 +1,11 @@
-import math
 import sys
 
 from datetime import datetime
 from importlib import import_module
 
-import requests
-from base import eveClient
+from base.evecli import cli
+
+import config
 
 
 JITA_4_4_STATION_ID = '60003760'
@@ -37,6 +37,9 @@ def collectOptions(args):
 
 if __name__ == '__main__':
     options = collectOptions(sys.argv[1:])
+
+    cli.scaffoldEvecliDir()
+    evecliDir = config.EVECLI_DIR
 
     start = datetime.now()
     run()
