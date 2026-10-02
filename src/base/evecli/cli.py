@@ -8,8 +8,8 @@ import config
 
 
 def ensureCharacterDir(characterId):
-    path = os.path.join(config.EVECLI_DATA_DIR, characterId)
-    if os.path.exists(path):
+    character_data_path = os.path.join(config.EVECLI_DATA_DIR, characterId)
+    if os.path.exists(character_data_path):
         return True
 
     # Verify if character exists:
@@ -17,8 +17,13 @@ def ensureCharacterDir(characterId):
     if not tranquility.checkCharacterExists(characterId):
         return False
 
-    # Create character dir:
-    os.makedirs(path)
+    # Create character's dir and its subdirs:
+    os.makedirs(character_data_path)
+    historyPath = os.path.join(character_data_path, 'history')
+    os.mkdir(historyPath)
+    os.mkdir(os.path.join(historyPath, 'prices'))
+    os.mkdir(os.path.join(historyPath, 'assets'))
+
     return True
 
 
