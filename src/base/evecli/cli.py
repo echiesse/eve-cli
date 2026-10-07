@@ -17,10 +17,14 @@ HOME_DIR = os.path.join(os.path.dirname(os.getcwd()), 'home')
 #HOME_DIR = os.path.expanduser('~')
 EVECLI_DIR = os.path.join(HOME_DIR, '.evecli')
 EVECLI_DATA_DIR = os.path.join(EVECLI_DIR, 'data')
+
 CHARACTERS_FILE = os.path.join(EVECLI_DATA_DIR, 'characters.json')
 
 INVENTORY_FILE_NAME = 'inventory.json'
 INVENTORY_FILE = os.path.join(HOME_DIR, INVENTORY_FILE_NAME)
+
+MARKET_ORDERS_FILE_NAME = 'market_orders.json'
+MARKET_ORDERS_FILE = os.path.join(HOME_DIR, MARKET_ORDERS_FILE_NAME)
 
 #-------------------------------------------------------------------------------
 

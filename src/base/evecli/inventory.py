@@ -135,7 +135,6 @@ def inventoryPrint(inventory: Inventory, itemNames, level=0):
         print(location)
 
 
-
 def inventoryFetch(apiclient, characterId):
     rawInventory = apiclient.getCharacterInventory(characterId)
     rawInventory = apiclient.fillAssetNames(rawInventory, characterId)
