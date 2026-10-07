@@ -10,7 +10,7 @@ python evecli.py priceEstimate noheader ^
     order-count=10 ^
     order-type=all ^
     retries=2 ^
-    resources\tracked_items.json > prices.txt
+    resources\tracked_types.json > prices.txt
 
 set _date=%date%
 set _time=%time%

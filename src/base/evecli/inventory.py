@@ -17,7 +17,6 @@ from support.utils import jprint, loadJson
 sde = sdeManagerFromConfig()
 
 
-
 STATIONS = {
     60003760: 'Jita IV - Moon 4 - Caldari Navy Assembly Plant',
     60005203: 'Tama VII - Moon 9 - Republic Security Services Testing Facilities',

@@ -77,7 +77,7 @@ def getInGameEstimatePrices(client):
 def run(*args):
     # https://esi.evetech.net/latest/markets/10000002/orders/?datasource=tranquility&order_type=sell&page=1&type_id=25600
 
-    itemsListFile = None
+    trackedTypesFile = None
     orderCountToConsider = 3500
     regionName = None
     regionId = None
@@ -108,10 +108,10 @@ def run(*args):
         elif arg == 'noheader':
             shallPrintHeader = False
         else:
-            itemsListFile = arg
+            trackedTypesFile = arg
 
-    if itemsListFile is None:
-        print('É obrigatório especificar o arquivo de input com os itens')
+    if trackedTypesFile is None:
+        print('Tracked types files not specified.')
         exit(0)
 
     optionalParams = {}
@@ -135,7 +135,7 @@ def run(*args):
     print(f'System Cost Index: {systemCostIndex}', file=sys.stderr)
 
     # Obtain prices of the materials:
-    items = loadJson(itemsListFile)
+    items = loadJson(trackedTypesFile)
     items.sort(key = lambda m: m['name'])
     priceTable = getPricesFromESI(items, region['id'], orderCountToConsider, orderType, retries, **optionalParams)
 
