@@ -40,17 +40,17 @@ def printHeader(regionName, regionId, orderCountToConsider):
 
 
 def worker_getOrders(args):
-    item, regionId, orderType, retries, optionalParams = args
-    return item['id'], item['name'], tranquility.getMarketOrders(
+    item_type, regionId, orderType, retries, optionalParams = args
+    return item_type['id'], item_type['name'], tranquility.getMarketOrders(
         regionId,
-        itemId = item['id'],
+        itemId = item_type['id'],
         orderType = orderType,
         retries = retries,
         **optionalParams
     )
 
 
-def getPricesFromESI(items, regionId, orderCountToConsider, orderType, retries, **optionalParams):
+def getPricesFromESI(trackedTypes, regionId, orderCountToConsider, orderType, retries, **optionalParams):
     priceTable = market.PriceTable()
 
     orderMap = []
@@ -58,8 +58,8 @@ def getPricesFromESI(items, regionId, orderCountToConsider, orderType, retries, 
         orderMap = pool.map(
             worker_getOrders,
             map(
-                lambda item: (item, regionId, orderType, retries, optionalParams),
-                items
+                lambda type: (type, regionId, orderType, retries, optionalParams),
+                trackedTypes
             )
         )
 
