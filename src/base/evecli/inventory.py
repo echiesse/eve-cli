@@ -16,6 +16,8 @@ from support.utils import jprint, loadJson
 
 sde = sdeManagerFromConfig()
 
+INVENTORY_FILE_NAME = 'inventory.json'
+
 
 STATIONS = {
     60003760: 'Jita IV - Moon 4 - Caldari Navy Assembly Plant',

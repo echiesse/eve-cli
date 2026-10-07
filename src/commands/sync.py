@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from application.factories import sdeManagerFromConfig
 from base import eveClient
@@ -8,34 +9,43 @@ from base.evecli.loader import getCharacterDataDir
 from base.evecli.market import consolidateByTypeId
 from support.algorithm import diffByKeyZip, groupListBy, groupDictBy, listToDict
 from support.math import weightedAverage
-from support.utils import jprint, showDateTime
+from support.utils import jprint, perror, showDateTime
 
 sde = sdeManagerFromConfig()
 
-from base.evecli.inventory import consolidateItems, inventoryFetch, inventorySave
+from base.evecli.inventory import (
+    INVENTORY_FILE_NAME,
+    consolidateItems,
+    inventoryFetch,
+    inventorySave
+)
+
 import config
 
 
 # TODO: Mover informações sobre localização e nomes de arquivos do evecli para um módulo de metadados (config) do projeto
-INVENTORY_FILE_NAME = 'inventory.json'
-INVENTORY_FILE = os.path.join(config.HOME_DIR, 'inventory.json')
+INVENTORY_FILE = os.path.join(config.HOME_DIR, INVENTORY_FILE_NAME)
 
 def run(characterId):
-    tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 
     # Make sure the character's dir exists
-    cli.ensureCharacterDir(characterId)
-    return
+    characterDataDir = cli.ensureCharacterDir(characterId)
+    if characterDataDir is None:
+        perror(f'Error: It was not possible to create the directory to hold character "{characterId}" data. Does the character exist in Eve Online?')
+        sys.exit(1)
 
     # Obtain character's inventory
-    inventory = inventoryFetch(tranquility, characterId)
-    characterDataDir = getCharacterDataDir(characterId)
-    inventoryFile = os.path.join(characterDataDir, INVENTORY_FILE_NAME)
-    inventorySave(inventory, inventoryFile)
+    #inventory = inventoryFetch(tranquility, characterId)
+    cli.fetchCharacterData(characterId)
 
-    inventoryFilename = f'inventory-{showDateTime()}.json'
-    inventoryPath = os.path.join(characterDataDir, inventoryFilename)
-    inventorySave(inventory, inventoryPath)
+    #characterDataDir = getCharacterDataDir(characterId)
+
+    #inventoryFile = os.path.join(characterDataDir, INVENTORY_FILE_NAME)
+    #inventorySave(inventory, inventoryFile)
+
+    #inventoryFilename = f'inventory-{showDateTime()}.json'
+    #inventoryPath = os.path.join(characterDataDir, inventoryFilename)
+    #inventorySave(inventory, inventoryPath)
 
     #jprint(inventory)
 
