@@ -16,7 +16,6 @@ from support.utils import jprint, loadJson
 
 sde = sdeManagerFromConfig()
 
-INVENTORY_FILE_NAME = 'inventory.json'
 
 
 STATIONS = {

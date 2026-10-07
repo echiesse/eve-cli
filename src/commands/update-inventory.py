@@ -12,10 +12,9 @@ from base.evecli.inventory import (
 
 from base import eveClient
 
-from base.evecli.loader import getCharacterDataDir
+from base.evecli.cli import getCharacterDataDir
 import support.functional as f
 
-import config
 from support.utils import ensureDir, jprint, showDateTime
 
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)

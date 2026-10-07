@@ -4,17 +4,14 @@ import json
 import os
 
 from application.factories import sdeManagerFromConfig
-from base.evecli.inventory import buildInventory, getItemNames, inventoryPrint
 from base import eveClient
-from base.evecli.inventory import inventoryFilterLeaf
+from base.evecli import cli
 from support.utils import jprint
-
-import config
 
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()
 
-TRANSACTION_FILE = os.path.join(config.HOME_DIR, 'transactions.json')
+TRANSACTION_FILE = os.path.join(cli.HOME_DIR, 'transactions.json')
 
 
 def run(characterId):

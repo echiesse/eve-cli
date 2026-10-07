@@ -4,13 +4,13 @@ from application.factories import sdeManagerFromConfig
 from base import eveClient
 from support.utils import ensureDir, jprint, saveJson, showDateTime
 
-import config
+from base.evecli import cli
 
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()
 
 MARKET_ORDERS_FILE_NAME = 'market-orders.json'
-MARKET_ORDERS_FILE = os.path.join(config.EVECLI_DIR, MARKET_ORDERS_FILE_NAME)
+MARKET_ORDERS_FILE = os.path.join(cli.EVECLI_DIR, MARKET_ORDERS_FILE_NAME)
 
 '''
 id, type_name, quantity, current_cost
@@ -20,7 +20,7 @@ JITA_4_4_STATION_ID = '60003760'
 
 def run(characterId, locationId):
 
-    characterDataDir = os.path.join(config.EVECLI_DIR, 'data', characterId)
+    characterDataDir = os.path.join(cli.EVECLI_DIR, 'data', characterId)
     ensureDir(characterDataDir)
     ordersFilename = f'market_orders-{locationId}-{showDateTime()}.json'
     ordersFilePath = os.path.join(characterDataDir, ordersFilename)

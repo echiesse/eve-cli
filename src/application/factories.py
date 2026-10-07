@@ -1,11 +1,11 @@
 import os
 from base import sde
-import config
+from base.evecli import cli
 
 
 def sdeManagerFromConfig():
     return sde.SDEManager(
-        sdeUrl = config.SDE_URL,
-        dataDir = config.SDE_DIR,
-        archiveName = config.SDE_ARCHIVE_NAME,
+        sdeUrl = cli.SDE_URL,
+        dataDir = cli.SDE_DIR,
+        archiveName = cli.SDE_ARCHIVE_NAME,
     )

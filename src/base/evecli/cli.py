@@ -3,13 +3,29 @@ import os
 from pathlib import Path
 
 from base import eveClient
-from base.evecli.inventory import INVENTORY_FILE_NAME, inventoryFetch, inventorySave
 from support.utils import ensureDir, showDateTime
-import config
 
+#-------------------------------------------------------------------------------
+# Contants:
+
+SDE_URL = 'https://developers.eveonline.com/static-data/eve-online-static-data-latest-yaml.zip'
+SDE_DIR = 'resources/sde/extract'
+SDE_ARCHIVE_NAME = 'sde.zip'
+
+# TODO: Use the user home in production
+HOME_DIR = os.path.join(os.path.dirname(os.getcwd()), 'home')
+#HOME_DIR = os.path.expanduser('~')
+EVECLI_DIR = os.path.join(HOME_DIR, '.evecli')
+EVECLI_DATA_DIR = os.path.join(EVECLI_DIR, 'data')
+CHARACTERS_FILE = os.path.join(EVECLI_DATA_DIR, 'characters.json')
+
+INVENTORY_FILE_NAME = 'inventory.json'
+INVENTORY_FILE = os.path.join(HOME_DIR, INVENTORY_FILE_NAME)
+
+#-------------------------------------------------------------------------------
 
 def getCharacterDataDir(characterId):
-    return os.path.join(config.EVECLI_DATA_DIR, characterId)
+    return os.path.join(EVECLI_DATA_DIR, characterId)
 
 
 def getCharacterHistoryAssetsDir(characterId):
@@ -18,19 +34,6 @@ def getCharacterHistoryAssetsDir(characterId):
 
 def getCharacterTimestampedDataDir(characterId):
     return os.path.join(getCharacterHistoryAssetsDir(characterId), showDateTime())
-
-
-def fetchCharacterData(characterId):
-    tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
-    inventory = inventoryFetch(tranquility, characterId)
-
-    dataPath = getCharacterDataDir(characterId)
-    historicDataPath = getCharacterTimestampedDataDir(characterId)
-    ensureDir(historicDataPath)
-
-    for path in [dataPath, historicDataPath]:
-        inventoryPath = os.path.join(path, INVENTORY_FILE_NAME)
-        inventorySave(inventory, inventoryPath)
 
 
 def ensureCharacterDir(characterId):
@@ -54,15 +57,15 @@ def ensureCharacterDir(characterId):
 
 
 def createCharactersFile():
-    with open(config.CHARACTERS_FILE, 'w') as char_file:
+    with open(CHARACTERS_FILE, 'w') as char_file:
         json.dump({}, char_file)
 
 
 def charactersFileExists():
-    return Path(config.CHARACTERS_FILE).exists()
+    return Path(CHARACTERS_FILE).exists()
 
 
 def scaffoldEvecliDir():
-    ensureDir(config.EVECLI_DIR) # ~/.evecli/
+    ensureDir(EVECLI_DIR) # ~/.evecli/
     if not charactersFileExists():
         createCharactersFile()

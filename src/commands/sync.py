@@ -5,7 +5,7 @@ import sys
 from application.factories import sdeManagerFromConfig
 from base import eveClient
 from base.evecli import cli
-from base.evecli.loader import getCharacterDataDir
+from base.evecli.character import fetchCharacterData
 from base.evecli.market import consolidateByTypeId
 from support.algorithm import diffByKeyZip, groupListBy, groupDictBy, listToDict
 from support.math import weightedAverage
@@ -14,40 +14,24 @@ from support.utils import jprint, perror, showDateTime
 sde = sdeManagerFromConfig()
 
 from base.evecli.inventory import (
-    INVENTORY_FILE_NAME,
     consolidateItems,
-    inventoryFetch,
-    inventorySave
 )
-
-import config
 
 
 # TODO: Mover informações sobre localização e nomes de arquivos do evecli para um módulo de metadados (config) do projeto
-INVENTORY_FILE = os.path.join(config.HOME_DIR, INVENTORY_FILE_NAME)
+
 
 def run(characterId):
 
-    # Make sure the character's dir exists
+    # Make sure the character's dir exists:
     characterDataDir = cli.ensureCharacterDir(characterId)
     if characterDataDir is None:
         perror(f'Error: It was not possible to create the directory to hold character "{characterId}" data. Does the character exist in Eve Online?')
         sys.exit(1)
 
-    # Obtain character's inventory
-    #inventory = inventoryFetch(tranquility, characterId)
-    cli.fetchCharacterData(characterId)
+    # Obtain character's inventory:
+    fetchCharacterData(characterId)
 
-    #characterDataDir = getCharacterDataDir(characterId)
-
-    #inventoryFile = os.path.join(characterDataDir, INVENTORY_FILE_NAME)
-    #inventorySave(inventory, inventoryFile)
-
-    #inventoryFilename = f'inventory-{showDateTime()}.json'
-    #inventoryPath = os.path.join(characterDataDir, inventoryFilename)
-    #inventorySave(inventory, inventoryPath)
-
-    #jprint(inventory)
 
     # Obtain character's market orders
     # Obtain character's wallet transactions
