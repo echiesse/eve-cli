@@ -9,6 +9,8 @@ from application.factories import sdeManagerFromConfig
 from base import eveClient
 import base.evecli.authentication as auth
 from support.algorithm import listToDict
+from support.filesystem import ensureDir
+from support.io import jprint
 from support.utils import *
 
 #https://esi.evetech.net/v1/markets/10000001/orders/?datasource=tranquility&order_type=sell&page=1

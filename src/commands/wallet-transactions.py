@@ -6,7 +6,7 @@ import os
 from application.factories import sdeManagerFromConfig
 from base import eveClient
 from base.evecli import cli
-from support.utils import jprint
+from support.io import jprint
 
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()

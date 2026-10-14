@@ -2,7 +2,10 @@ import os
 
 from application.factories import sdeManagerFromConfig
 from base import eveClient
-from support.utils import ensureDir, jprint, saveJson, showDateTime
+from support.filesystem import ensureDir
+from support.io import jprint
+from support.json import saveJson
+from application.datetime import showCurrentDateTime
 
 from base.evecli import cli
 
@@ -22,7 +25,7 @@ def run(characterId, locationId):
 
     characterDataDir = os.path.join(cli.EVECLI_DIR, 'data', characterId)
     ensureDir(characterDataDir)
-    ordersFilename = f'market_orders-{locationId}-{showDateTime()}.json'
+    ordersFilename = f'market_orders-{locationId}-{showCurrentDateTime()}.json'
     ordersFilePath = os.path.join(characterDataDir, ordersFilename)
 
     orders = tranquility.getCharacterOrders(characterId, int(locationId))

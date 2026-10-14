@@ -13,9 +13,11 @@ from base.evecli.inventory import (
 from base import eveClient
 
 from base.evecli.cli import getCharacterDataDir
+from support.filesystem import ensureDir
 import support.functional as f
 
-from support.utils import ensureDir, jprint, showDateTime
+from support.io import jprint
+from application.datetime import showCurrentDateTime
 
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()
@@ -52,7 +54,7 @@ def run(characterId, stationId):
     #jprint(inv_diff)
 
     ensureDir(characterDataDir)
-    inventoryFilename = f'inventory-{stationId}-{showDateTime()}.json'
+    inventoryFilename = f'inventory-{stationId}-{showCurrentDateTime()}.json'
     inventoryPath = os.path.join(characterDataDir, inventoryFilename)
 
     _items = [item.asdict for item in hangarItems]

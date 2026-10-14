@@ -4,7 +4,8 @@ from attrs import define
 from base import eveClient
 from base.evecli.inventory import inventoryFetch, inventorySave
 from base.evecli import cli
-from support.utils import ensureDir, saveJson
+from support.filesystem import ensureDir
+from support.json import saveJson
 
 
 @define

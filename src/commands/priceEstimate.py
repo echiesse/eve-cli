@@ -3,6 +3,7 @@ import sys
 
 import multiprocessing as mp
 
+from application.datetime import showCurrentDateTime
 from application.factories import sdeManagerFromConfig
 from base import eveClient
 from base.blueprints import *
@@ -10,6 +11,8 @@ from base.evecli import market
 from base.support import loadJson
 from extra.queries import *
 from support.filesystem import pushd
+from support.io import perror
+from support.json import loadJson
 from support.utils import *
 
 ORDER_TYPES = ['sell', 'buy', 'all']
@@ -18,19 +21,15 @@ MAX_WORKERS = 10
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 sde = sdeManagerFromConfig()
 
-
 def findRegion(*, regionId = None, regionName = None):
+    # FIXME: The region is now fixed to "The Forge". We should use SDE (mapRegions.yaml) data to return the region by region id or name
     regions = loadJson(os.path.join('resources', 'regions.json'))
     region = {'id': None, 'name': None}
-    if regionId is not None:
-        region['id'] = regionId
-        region = getRegionById(regionId) or region
-    else:
-        regionName = regionName or "The Forge"
-        region = regions.get(regionName)
-        if region is None:
-            print(f'Could not find region {region}')
-            exit(1)
+    regionName = regionName or "The Forge"
+    region = regions.get(regionName)
+    if region is None:
+        print(f'Could not find region {region}')
+        exit(1)
     return region
 
 def printHeader(regionName, regionId, orderCountToConsider):
@@ -140,6 +139,7 @@ def run(*args):
     priceTable = getPricesFromESI(items, region['id'], orderCountToConsider, orderType, retries, **optionalParams)
 
     inGameEstimatePrices = getInGameEstimatePrices(tranquility)
+    #breakpoint() #<<<<<
     for tableItem in priceTable.items:
         inGameEstimates = inGameEstimatePrices.get(tableItem.id)
         if inGameEstimates is not None:
@@ -157,6 +157,7 @@ def run(*args):
 
 
     # Calculate cost of industry items:
+    #breakpoint() #<<<<<
     for item in items:
         itemId = item['id']
         # Obtain item's blueprint:
@@ -177,6 +178,7 @@ def run(*args):
         eiv = 0
         succeded = True
         notFoundItems = []
+        #breakpoint()  #<<<<<
         for id, quantity in components.items():
             id = int(id)
             component = priceTable.getItem(id)
@@ -210,7 +212,7 @@ def run(*args):
 
     # Save the price table:
     pricesDir = 'price_history'
-    tableFilename = f'prices_{region['id']}_{solarSystemName}_{showDateTime()}.json'
+    tableFilename = f'prices_{region['id']}_{solarSystemName}_{showCurrentDateTime()}.json'
     path = os.path.join(pricesDir, tableFilename)
 
     if not os.path.exists(pricesDir):

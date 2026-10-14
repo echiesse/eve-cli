@@ -3,7 +3,8 @@ import os
 from pathlib import Path
 
 from base import eveClient
-from support.utils import ensureDir, showDateTime
+from support.filesystem import ensureDir
+from application.datetime import showCurrentDateTime
 
 #-------------------------------------------------------------------------------
 # Contants:
@@ -37,7 +38,7 @@ def getCharacterHistoryAssetsDir(characterId):
 
 
 def getCharacterTimestampedDataDir(characterId):
-    return os.path.join(getCharacterHistoryAssetsDir(characterId), showDateTime())
+    return os.path.join(getCharacterHistoryAssetsDir(characterId), showCurrentDateTime())
 
 
 def ensureCharacterDir(characterId):

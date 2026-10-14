@@ -8,8 +8,9 @@ from base.evecli import cli
 from base.evecli.character import fetchCharacterData
 from base.evecli.market import consolidateByTypeId
 from support.algorithm import diffByKeyZip, groupListBy, groupDictBy, listToDict
+from support.io import jprint, perror
 from support.math import weightedAverage
-from support.utils import jprint, perror, showDateTime
+from application.datetime import showCurrentDateTime
 
 sde = sdeManagerFromConfig()
 

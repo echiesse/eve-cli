@@ -10,8 +10,9 @@ from application.factories import sdeManagerFromConfig
 from base import eveClient
 from base.eve import Inventory, Item, Location
 from support.algorithm import listToDict, sumField
+from support.json import loadJson
 from support.math import weightedAverage
-from support.utils import jprint, loadJson
+from support.io import jprint
 
 
 sde = sdeManagerFromConfig()
