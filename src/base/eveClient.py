@@ -1,6 +1,8 @@
 import json
 import math
 import os
+import sys
+
 from collections.abc import Callable
 
 import requests
@@ -11,7 +13,6 @@ import base.evecli.authentication as auth
 from support.algorithm import listToDict
 from support.filesystem import ensureDir
 from support.io import jprint
-from support.utils import *
 
 #https://esi.evetech.net/v1/markets/10000001/orders/?datasource=tranquility&order_type=sell&page=1
 #https://esi.evetech.net/v3/universe/types/2048?datasource=tranquility&type_id=2048

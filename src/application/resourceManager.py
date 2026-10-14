@@ -1,7 +1,8 @@
+import json
 import os
 
-from base.support import *
 from base.evecli import display
+from support.json import loadJson
 
 RESOURCE_DIR = 'resources'
 
@@ -29,11 +30,10 @@ def getResourcePath(resourceName):
 
 
 def loadJsonResource(resourceName):
-    resource = loadJson(getResourcePath(resourceName))
-    if resource is None:
+    try:
+        return loadJson(getResourcePath(resourceName))
+    except FileNotFoundError:
         raise ResourceNotFoundException(f'The resource "{resourceName}" could not be found.')
-
-    return resource
 
 
 def saveJsonResource(resourceName, data):

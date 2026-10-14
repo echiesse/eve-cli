@@ -3,7 +3,6 @@ from application.resourceManager import *
 
 from base import eveClient
 from base.evecli import display
-from base.support import *
 
 tranquility = eveClient.DataSource(eveClient.ServerNames.TRANQUILITY)
 

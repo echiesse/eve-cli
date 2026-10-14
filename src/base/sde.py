@@ -10,7 +10,6 @@ import zipfile
 
 from lxml import etree
 
-from support.utils import *
 from support.filesystem import ensureDir, pushd
 
 
