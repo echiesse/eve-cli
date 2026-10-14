@@ -72,8 +72,9 @@ class Location:
 @define
 class Item:
     id: str
-    typeId: str
     name: str
+    typeId: str
+    typeName: str
     quantity: int
     averageCost: float = field(init=False, default=0)
 

@@ -45,7 +45,13 @@ def _buildInventory(rawInventory: list, nodeSet = None) -> Inventory :
         else:
             # Add item to the just created node:
             try:
-                location.setItem(Item(item['item_id'], item['type_id'], '', item['quantity']))
+                location.setItem(Item(
+                    item['item_id'],
+                    item['name'],
+                    item['type_id'],
+                    item['type_name'],
+                    item['quantity']
+                ))
             except:
                 print(item)
                 raise
@@ -111,13 +117,9 @@ def isLeafNode(node: Item|Location):
     return isinstance(node, Item)
 
 
-def inventoryLoad(path):
-    return loadJson(path)
-
-
-def inventorySave(rawInventory: list[dict], path: str):
-    with open(path, 'w') as inventoryFile:
-        json.dump(rawInventory, inventoryFile, indent=2)
+def inventoryLoad(path) -> Inventory:
+    rawInventory = loadJson(path)
+    return buildInventory(rawInventory)
 
 
 def inventoryMergeNames(inventory: Inventory, itemNames: dict) -> Inventory:
@@ -136,23 +138,15 @@ def inventoryPrint(inventory: Inventory, itemNames, level=0):
         print(location)
 
 
-def inventoryFetch(apiclient, characterId):
+def rawInventoryFetch(apiclient, characterId) -> list[dict]:
     rawInventory = apiclient.getCharacterInventory(characterId)
     rawInventory = apiclient.fillAssetNames(rawInventory, characterId)
-    rawInventory = inventoryFillTypeNames(rawInventory)
+    rawInventory = rawInventoryFillTypeNames(rawInventory)
 
     return rawInventory
 
-    # TODO: move the inventory pre processing to the code that will actually use the inventory
-    # Here we are just saving the inventory as it comes from the ESI.
-    # The only operation we do before saving is complement with the item name and type name
-    '''
-    inventory = buildInventory(rawInventory)
-    inventoryMergeNames(inventory, itemNameDict)
-    return inventory
-    '''
 
-def inventoryFillTypeNames(rawInventory):
+def rawInventoryFillTypeNames(rawInventory):
     for item in rawInventory:
         name = sde.getTypeName(str(item['type_id']))
         item['type_name'] = name

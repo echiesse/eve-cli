@@ -1,13 +1,10 @@
 import json
 import os
-import sys
 
 from application.factories import sdeManagerFromConfig
 from base.evecli.inventory import (
-    buildInventory,
     consolidateItems,
-    inventoryFetch,
-    inventoryLoad,
+    rawInventoryFetch,
 )
 
 from base import eveClient
@@ -39,7 +36,7 @@ def printHangar(hangar, itemNames):
 JITA_4_4_STATION_ID = '60003760' # TODO: Remove so the user must always pass via command line arguments
 
 def run(characterId, stationId):
-    inventory = inventoryFetch(tranquility, characterId)
+    inventory = rawInventoryFetch(tranquility, characterId)
     stationInventory = inventory[int(stationId)]
     hangarItems = stationInventory.onlyItems()
     new_inventory = consolidateItems(hangarItems)

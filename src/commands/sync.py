@@ -16,6 +16,7 @@ sde = sdeManagerFromConfig()
 
 from base.evecli.inventory import (
     consolidateItems,
+    inventoryLoad,
 )
 
 
@@ -30,17 +31,20 @@ def run(characterId):
         perror(f'Error: It was not possible to create the directory to hold character "{characterId}" data. Does the character exist in Eve Online?')
         sys.exit(1)
 
-    # Obtain character's inventory:
+    # Obtain character's inventory and market orders:
     fetchCharacterData(characterId)
 
-
-    # Obtain character's market orders
     # Obtain character's wallet transactions
 
-    # These resources must be syncd at the same time. Meaning inventory and order must be obtained together.
+    # Load character's data from disc
+    inventory = inventoryLoad(cli.getCharacterInventoryFile(characterId))
+    for location_id, location in inventory.items():
+        for id, item in location.items.items():
+            print(item)
+            sys.exit(0)
+
 
     # Update the inventory average cost
-
 
     #buyOrders = list(filter(lambda o: o.get('is_buy_order') == True, MARKET_ORDERS))
     #newbuyOrders = list(filter(lambda o: o.get('is_buy_order') == True, NEW_MARKET_ORDERS))

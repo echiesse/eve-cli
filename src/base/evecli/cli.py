@@ -37,8 +37,16 @@ def getCharacterHistoryAssetsDir(characterId):
     return os.path.join(getCharacterDataDir(characterId), 'history', 'assets')
 
 
-def getCharacterTimestampedDataDir(characterId):
+def genCharacterTimestampedDataDir(characterId):
     return os.path.join(getCharacterHistoryAssetsDir(characterId), showCurrentDateTime())
+
+
+def getCharacterInventoryFile(characterId):
+    return os.path.join(getCharacterDataDir(characterId), INVENTORY_FILE_NAME)
+
+
+def getCharacterOrdersFile(characterId):
+    return os.path.join(getCharacterDataDir(characterId), MARKET_ORDERS_FILE)
 
 
 def ensureCharacterDir(characterId):
